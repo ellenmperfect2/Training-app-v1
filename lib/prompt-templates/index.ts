@@ -103,10 +103,13 @@ function formatCardioLog(sessions: WorkoutLog['cardio']): string {
 
   return sessions
     .map((s) => {
-      const elevFt = Math.round(s.elevationGainM * 3.281);
-      const hrs = (s.durationMinutes / 60).toFixed(1);
-      const pack = s.annotation.packWeight ? ` pack:${s.annotation.packWeight}` : '';
-      return `${s.date} ${s.corosType} ${hrs}hr ${elevFt}ft gain avgHR:${s.avgHR ?? 'N/A'}${pack}`;
+      const hrs = (s.duration / 3600).toFixed(1);
+      const pack = s.packWeight && s.packWeight !== 'none' ? ` pack:${s.packWeight}` : '';
+      const zd = s.zoneDistribution
+        ? ` Z1:${s.zoneDistribution.z1}m Z2:${s.zoneDistribution.z2}m Z3:${s.zoneDistribution.z3}m Z4:${s.zoneDistribution.z4}m Z5:${s.zoneDistribution.z5}m`
+        : '';
+      const tl = s.trainingLoad ? ` load:${s.trainingLoad.score}(${s.trainingLoad.classification})` : '';
+      return `${s.date} ${s.activityType} ${hrs}hr ${s.elevationGain}ft gain avgHR:${s.avgHR ?? 'N/A'}${pack}${zd}${tl}`;
     })
     .join('\n');
 }

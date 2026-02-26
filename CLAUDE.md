@@ -1,5 +1,5 @@
 # Summit Dashboard — CLAUDE.md
-**v3 — added MANAGE USER PREFERENCES command type + userPreferences localStorage key + /preferences route — 2026-02-26**
+**v4 — replaced CSV upload with FIT parser, added zones system, new CardioSession shape, /zones route — 2026-02-26**
 
 Claude Code reads this file at the start of every session. It reflects the current architectural state of the app. Update this file (incrementing v[N]) after any change to file ownership, localStorage structure, data shapes, command types, or system architecture.
 
@@ -31,6 +31,8 @@ Claude Code reads this file at the start of every session. It reflects the curre
 | Parsers | `lib/parsers/` | PROCESS DAILY DATA |
 | Prompt templates | `lib/prompt-templates/index.ts` | UPDATE PROMPT LOGIC |
 | Storage types + helpers | `lib/storage/index.ts` | Any command adding/changing data shapes |
+| Zone system | `lib/zones.ts`, `lib/storage/index.ts` (UserZones), `components/zones/`, `app/zones/` | MANAGE ZONES |
+| FIT parser | `lib/fit-parser.ts` | PROCESS DAILY DATA |
 | User preferences | `lib/storage/index.ts` (UserPreferences), `components/preferences/`, `app/preferences/` | MANAGE USER PREFERENCES |
 | UI components | `components/` | AESTHETIC UPDATE, PROCESS DAILY DATA, MANAGE OBJECTIVES, MANAGE USER PREFERENCES |
 | Pages / Nav | `app/`, `components/ui/Nav.tsx` | AESTHETIC UPDATE, PROCESS DAILY DATA, MANAGE USER PREFERENCES |
@@ -45,7 +47,7 @@ Claude Code reads this file at the start of every session. It reflects the curre
 | `archivedObjectives` | `ArchivedObjective[]` | COMPLETE OBJECTIVE, MANAGE OBJECTIVES |
 | `combinedPlan` | `CombinedTrainingPlan \| null` | UPDATE TRAINING PLAN |
 | `conflicts` | `ConflictList` | REWEIGHT OBJECTIVES |
-| `workoutLog` | `{ cardio: ParsedCorosSession[]; strength: StrengthSession[]; climbing: ClimbingSession[]; conditioning: ConditioningSession[] }` | PROCESS DAILY DATA |
+| `workoutLog` | `{ cardio: CardioSession[]; strength: StrengthSession[]; climbing: ClimbingSession[]; conditioning: ConditioningSession[] }` | PROCESS DAILY DATA |
 | `checkInLog` | `DailyCheckIn[]` | PROCESS DAILY DATA |
 | `personalBaseline` | `PersonalBaseline` | PROCESS DAILY DATA |
 | `stimulusHistory` | array | PROCESS DAILY DATA |
@@ -53,6 +55,7 @@ Claude Code reads this file at the start of every session. It reflects the curre
 | `activeTrainingConfig` | `TrainingConfig` | APPLY TRAINING CONFIG |
 | `configHistory` | array | APPLY TRAINING CONFIG |
 | `userPreferences` | `UserPreferences` | MANAGE USER PREFERENCES |
+| `userZones` | `UserZones` | MANAGE ZONES |
 
 ---
 

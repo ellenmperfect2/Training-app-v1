@@ -49,6 +49,13 @@ Version number increments with every substantive change. Summary should be 3–6
 
 ---
 
+## MANAGE ZONES
+- **Scope:** `userZones` localStorage key, zone management UI (`/zones`), `/lib/zones.ts`, any file that reads zone thresholds
+- **Never Touch:** `objective-library.json`, `benchmark-library.json`, `assessment-library.json`, `training-config.json`, `training-config-schema.json`, `/lib/recovery`
+- **Triggers:** "heart rate zones", "zones", "MAF", "max HR", "age-based zones", "update zones", "zone setup"
+
+---
+
 ## MANAGE USER PREFERENCES
 - **Scope:** `userPreferences` localStorage key, preferences UI screen (`/preferences`), `/lib/recommendation` (reading preference values only)
 - **Never Touch:** `objective-library.json`, `benchmark-library.json`, `assessment-library.json`, `training-config.json`, `training-config-schema.json`, `objective-spec-schema.json`

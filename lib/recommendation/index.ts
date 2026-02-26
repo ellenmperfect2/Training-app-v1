@@ -13,6 +13,7 @@ import { DEFAULT_USER_PREFERENCES } from '../storage';
 import type { ClassificationDetail } from '../recovery';
 import { getMandatoryRestGroups } from '../stimulus-engine';
 import type { StimulusMap } from '../storage';
+import { getZoneThresholds, computeZoneTotals } from '../zones';
 import exerciseLibrary from '../../data/exercise-library.json';
 
 export interface RecommendationCard {
@@ -73,6 +74,85 @@ const DEFAULT_CONFIG: TrainingConfig = {
   'override-reason': 'Default baseline config.',
 };
 
+// ── Zone analysis helpers ──────────────────────────────────────────────────
+
+function getLast4WeeksCardio(log: WorkoutLog, today: string) {
+  const cutoff = new Date(today);
+  cutoff.setDate(cutoff.getDate() - 28);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  return log.cardio.filter((s) => s.date >= cutoffStr && s.date <= today);
+}
+
+function buildZoneRecommendation(
+  log: WorkoutLog,
+  today: string,
+  config: TrainingConfig,
+  activeObjectives: ActivatedObjective[],
+  prefs: UserPreferences
+): { cardioNote: string | null; cardioParams: string | null } {
+  const sessions = getLast4WeeksCardio(log, today);
+  if (sessions.length === 0) return { cardioNote: null, cardioParams: null };
+
+  const zones = getZoneThresholds();
+  const totals = computeZoneTotals(sessions);
+
+  const hasAerobicObjective = activeObjectives.some((obj) => {
+    const type = (obj.type ?? '').toLowerCase();
+    return type.includes('hike') || type.includes('mountain') || type.includes('climb') || type.includes('trail');
+  });
+
+  const minZ2Hours = config['cardio-zone2-minimum-hours'];
+  const weeklyZ2 = totals.z2Hours / 4; // average over 4 weeks
+  const totalCardioHours = totals.totalHours;
+  const anaerobicPct = totalCardioHours > 0
+    ? ((totals.z4Hours + totals.z5Hours) / totalCardioHours) * 100
+    : 0;
+
+  // Priority 1: threshold deficit for aerobic objectives
+  if (hasAerobicObjective && anaerobicPct < 15 && totalCardioHours > 2) {
+    const z4low = zones.z4.low + prefs.hrCalibrationOffset;
+    const z4high = zones.z4.high + prefs.hrCalibrationOffset;
+    return {
+      cardioNote: `Z4–Z5 is only ${Math.round(anaerobicPct)}% of 4-week cardio — objective demands threshold work.`,
+      cardioParams: `3 × 10 min at threshold effort (target HR ${z4low}–${z4high} bpm) with 10 min Z1 recovery between intervals`,
+    };
+  }
+
+  // Priority 2: Z2 below config minimum
+  const weekStart = (() => {
+    const now = new Date(today);
+    now.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    return now.toISOString().slice(0, 10);
+  })();
+  const thisWeekSessions = log.cardio.filter((s) => s.date >= weekStart && s.date <= today);
+  const thisWeekZ2 = computeZoneTotals(thisWeekSessions).z2Hours;
+  const z2low = zones.z2.low + prefs.hrCalibrationOffset;
+  const z2high = zones.z2.high + prefs.hrCalibrationOffset;
+
+  if (minZ2Hours > 0 && thisWeekZ2 < minZ2Hours) {
+    const remaining = Math.round((minZ2Hours - thisWeekZ2) * 10) / 10;
+    return {
+      cardioNote: `Z2 this week: ${thisWeekZ2.toFixed(1)}h — config minimum is ${minZ2Hours}h (${remaining}h remaining).`,
+      cardioParams: `Zone 2 cardio (target HR ${z2low}–${z2high} bpm) — aim for at least ${remaining}h today to meet weekly minimum`,
+    };
+  }
+
+  // Priority 3: methodology-based targets (no objective)
+  if (activeObjectives.length === 0) {
+    const methodology = prefs.preferredMethodology;
+    if (methodology === 'uphill-athlete') {
+      const z2low2 = zones.z2.low + prefs.hrCalibrationOffset;
+      const z2high2 = zones.z2.high + prefs.hrCalibrationOffset;
+      return {
+        cardioNote: `Uphill Athlete: aerobic base focus — Z2 builds the aerobic engine.`,
+        cardioParams: `Zone 2 aerobic session at conversational pace (target HR ${z2low2}–${z2high2} bpm)`,
+      };
+    }
+  }
+
+  return { cardioNote: null, cardioParams: null };
+}
+
 export function buildRecommendation(params: {
   config: TrainingConfig | null;
   recovery: RecoveryClassification | null;
@@ -109,6 +189,11 @@ export function buildRecommendation(params: {
   // Compute preference-based exercise suppression
   const suppressedExerciseIds = computeSuppressedExercises(prefs);
 
+  // Zone analysis for cardio recommendations
+  const { cardioNote, cardioParams } = buildZoneRecommendation(
+    log, today, config, activeObjectives, prefs
+  );
+
   // Step 5–6: Build recommendation based on recovery + proximity
   let card: RecommendationCard;
 
@@ -135,6 +220,14 @@ export function buildRecommendation(params: {
 
   // Override whyNote with data-specific version
   card.whyNote = buildDataWhyNote(finalRecovery, recoveryDetail, config, activeObjectives, prefs, usingDefault);
+
+  // Append zone-based cardio context to whyNote (after main why note)
+  if (cardioNote && card.recoveryState !== 'rest' && card.recoveryState !== 'fatigued') {
+    card.whyNote = card.whyNote ? `${card.whyNote} ${cardioNote}` : cardioNote;
+    if (cardioParams && card.exercises.length === 0 && !card.activityDescription) {
+      card.parameters = cardioParams;
+    }
+  }
 
   // Override configInfluenceNote
   card.configInfluenceNote = buildConfigNote(config, finalRecovery, usingDefault, prefs);

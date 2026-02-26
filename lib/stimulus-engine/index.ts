@@ -5,7 +5,7 @@
 import type {
   StimulusMap,
   WorkoutLog,
-  ParsedCorosSession,
+  CardioSession,
   StrengthSession,
   ClimbingSession,
   ConditioningSession,
@@ -62,34 +62,34 @@ function toLevel(value: number): StimulusLevel {
   return 'high';
 }
 
-function getCardioStimulus(session: ParsedCorosSession): StimulusMap {
-  const { corosType, annotation, elevationGainM, durationMinutes } = session;
-  const elevGainFt = (elevationGainM ?? 0) * 3.281;
-  const hours = durationMinutes / 60;
+function getCardioStimulus(session: CardioSession): StimulusMap {
+  const { activityType, packWeight, weightsUsed, elevationGain, duration } = session;
+  const elevGainFt = elevationGain ?? 0;
+  const hours = duration / 3600;
   const elevPerHour = hours > 0 ? elevGainFt / hours : 0;
 
   const mappings = stimulusMappingData.cardioStimulusMappings;
 
   let match = mappings.find((m) => {
     const types = Array.isArray(m.corosType) ? m.corosType : [m.corosType];
-    if (!types.includes(corosType)) return false;
+    if (!types.includes(activityType)) return false;
     if (!m.condition) return true;
 
     // Evaluate condition string
     if (m.condition.includes('elevationGainPerHour < 500')) return elevPerHour < 500;
     if (m.condition.includes('elevationGainPerHour >= 500')) return elevPerHour >= 500;
-    if (m.condition.includes("packWeight === 'none'")) return annotation.packWeight === 'none';
-    if (m.condition.includes("packWeight !== 'none'")) return annotation.packWeight !== 'none' && annotation.packWeight !== undefined;
-    if (m.condition.includes('weightsUsed === false')) return annotation.weightsUsed === false;
-    if (m.condition.includes('weightsUsed === true')) return annotation.weightsUsed === true;
+    if (m.condition.includes("packWeight === 'none'")) return packWeight === 'none';
+    if (m.condition.includes("packWeight !== 'none'")) return packWeight !== 'none' && packWeight !== undefined;
+    if (m.condition.includes('weightsUsed === false')) return weightsUsed === false;
+    if (m.condition.includes('weightsUsed === true')) return weightsUsed === true;
     return true;
   });
 
-  // Fallback: match corosType without condition
+  // Fallback: match activityType without condition
   if (!match) {
     match = mappings.find((m) => {
       const types = Array.isArray(m.corosType) ? m.corosType : [m.corosType];
-      return types.includes(corosType);
+      return types.includes(activityType);
     });
   }
 
@@ -226,8 +226,8 @@ export function computeWeeklyStimulus(
   for (const s of log.cardio) {
     if (s.date >= startDate && s.date <= endDate) {
       const contrib = getCardioStimulus(s);
-      const hours = Math.round(s.durationMinutes / 60 * 10) / 10;
-      contributors.push({ label: `${s.corosType} (${dayLabel(s.date)}, ${hours}h)`, map: contrib });
+      const hours = Math.round(s.duration / 3600 * 10) / 10;
+      contributors.push({ label: `${s.activityType} (${dayLabel(s.date)}, ${hours}h)`, map: contrib });
       Object.keys(total).forEach((k) => {
         (total as unknown as Record<string, number>)[k] += (contrib as unknown as Record<string, number>)[k];
       });
@@ -371,7 +371,7 @@ const CARDIO_TYPE_LABELS: Record<string, string> = {
   GeneralCardio: 'General cardio',
 };
 
-export function getCardioSessionStimulusSummary(session: ParsedCorosSession): CardioSessionSummary {
+export function getCardioSessionStimulusSummary(session: CardioSession): CardioSessionSummary {
   const map = getCardioStimulus(session);
 
   // Use dominant group level as the session load classification
@@ -388,24 +388,23 @@ export function getCardioSessionStimulusSummary(session: ParsedCorosSession): Ca
 
   // Build factors list
   const factors: string[] = [];
-  const typeLabel = CARDIO_TYPE_LABELS[session.corosType] ?? session.corosType;
+  const typeLabel = CARDIO_TYPE_LABELS[session.activityType] ?? session.activityType;
   factors.push(`Activity type: ${typeLabel}`);
 
-  if (session.durationMinutes > 0) {
-    const hrs = Math.round((session.durationMinutes / 60) * 10) / 10;
+  if (session.duration > 0) {
+    const hrs = Math.round((session.duration / 3600) * 10) / 10;
     factors.push(`Duration: ${hrs}h`);
   }
 
-  if (session.elevationGainM > 0) {
-    const ft = Math.round(session.elevationGainM * 3.281);
-    factors.push(`Elevation gain: ${ft}ft — increases posterior chain and loaded carry stimulus`);
+  if (session.elevationGain > 0) {
+    factors.push(`Elevation gain: ${Math.round(session.elevationGain)}ft — increases posterior chain and loaded carry stimulus`);
   }
 
-  if (session.annotation.packWeight && session.annotation.packWeight !== 'none') {
-    factors.push(`Pack weight: ${session.annotation.packWeight} — increases loaded carry and posterior chain stimulus`);
+  if (session.packWeight && session.packWeight !== 'none') {
+    factors.push(`Pack weight: ${session.packWeight} — increases loaded carry and posterior chain stimulus`);
   }
 
-  if (session.annotation.weightsUsed) {
+  if (session.weightsUsed) {
     factors.push('Weights used — adds loaded carry stimulus');
   }
 
@@ -413,8 +412,8 @@ export function getCardioSessionStimulusSummary(session: ParsedCorosSession): Ca
     factors.push(`Avg HR: ${session.avgHR} bpm`);
   }
 
-  if (session.annotation.perceivedEffort) {
-    factors.push(`Perceived effort: ${session.annotation.perceivedEffort}/10`);
+  if (session.perceivedEffort) {
+    factors.push(`Perceived effort: ${session.perceivedEffort}/10`);
   }
 
   const dominantLabel = dominantKey ? (GROUP_LABELS[dominantKey] ?? String(dominantKey)) : null;

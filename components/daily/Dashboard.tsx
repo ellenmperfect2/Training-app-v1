@@ -6,6 +6,7 @@ import StatusLayer from './StatusLayer';
 import StimulusDisplay from '@/components/stimulus/StimulusDisplay';
 import ConfigCard from '@/components/config/ConfigCard';
 import PasteWorkflowButtons from './PasteWorkflowButtons';
+import AerobicBalance from './AerobicBalance';
 import {
   getCheckInLog,
   getWorkoutLog,
@@ -135,6 +136,9 @@ export default function Dashboard() {
       {stimulusResult && (
         <StimulusDisplay stimulus={stimulusResult} />
       )}
+
+      {/* Aerobic balance */}
+      <AerobicBalance />
 
       {/* Paste workflow buttons */}
       <PasteWorkflowButtons />

@@ -36,7 +36,7 @@ export function getVolumeStatus(
 ): VolumeStatus {
   const cardioMinutes = log.cardio
     .filter((s) => s.date >= startDate && s.date <= endDate)
-    .reduce((sum, s) => sum + s.durationMinutes, 0);
+    .reduce((sum, s) => sum + s.duration / 60, 0);
 
   const strengthSessions = log.strength.filter(
     (s) => s.date >= startDate && s.date <= endDate
@@ -106,10 +106,10 @@ export function detectBenchmarkMatches(
       ) {
         // Heuristic: long cardio session with elevation = potential match
         if (
-          session.durationMinutes >= 90 &&
-          session.elevationGainM > 300 &&
-          session.annotation.packWeight &&
-          session.annotation.packWeight !== 'none'
+          session.duration >= 5400 &&
+          session.elevationGain > 984 &&
+          session.packWeight &&
+          session.packWeight !== 'none'
         ) {
           suggestions.push({
             assessmentId: assessment.id,

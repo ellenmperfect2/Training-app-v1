@@ -11,6 +11,7 @@ const links = [
   { href: '/upload', label: 'Cardio' },
   { href: '/objectives', label: 'Objectives' },
   { href: '/preferences', label: 'Preferences' },
+  { href: '/zones', label: 'HR Zones' },
 ];
 
 export default function Nav() {

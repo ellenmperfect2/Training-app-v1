@@ -2,7 +2,8 @@
 // Format: [ActivityType][YYYYMMDD][HHMMSS].csv
 // Timestamp is unique identifier for multiple same-day workouts.
 
-import type { ParsedCorosSession } from '../storage';
+// NOTE: This parser is no longer used — replaced by lib/fit-parser.ts
+// Retained for reference only.
 import activityTypesData from '../../data/coros-activity-types.json';
 
 const KNOWN_COROS_TYPES = activityTypesData.activityTypes.map((t) => t.corosType);
@@ -32,7 +33,7 @@ const COL = {
 
 export interface ParseResult {
   success: true;
-  session: Omit<ParsedCorosSession, 'annotation'>;
+  session: Record<string, unknown>;
   corosType: string;
   requiresAnnotation: boolean;
   annotationFields: string[];
@@ -107,7 +108,7 @@ export function parseCorosCsv(filename: string, csvText: string): ParseResult | 
   const activityDef = activityTypesData.activityTypes.find((t) => t.corosType === corosType);
   const annotationFields = activityDef?.annotationFields ?? ['notes'];
 
-  const session: Omit<ParsedCorosSession, 'annotation'> = {
+  const session: Record<string, unknown> = {
     id: `${date}-${corosType}-${timestamp}`,
     date,
     corosType,

@@ -14,6 +14,7 @@ export const STORAGE_KEYS = {
   ACTIVE_TRAINING_CONFIG: 'activeTrainingConfig',
   CONFIG_HISTORY: 'configHistory',
   USER_PREFERENCES: 'userPreferences',
+  USER_ZONES: 'userZones',
 } as const;
 
 function isBrowser(): boolean {
@@ -100,7 +101,7 @@ export function setWorkoutLog(log: WorkoutLog): void {
   write(STORAGE_KEYS.WORKOUT_LOG, log);
 }
 
-export function appendCardioSession(session: ParsedCorosSession): void {
+export function appendCardioSession(session: CardioSession): void {
   const log = getWorkoutLog();
   log.cardio = [...log.cardio, session];
   setWorkoutLog(log);
@@ -249,6 +250,16 @@ export function setUserPreferences(prefs: UserPreferences): void {
   write(STORAGE_KEYS.USER_PREFERENCES, prefs);
 }
 
+// ── User Zones ─────────────────────────────────────────────────────────────
+
+export function getUserZones(): UserZones {
+  return read<UserZones>(STORAGE_KEYS.USER_ZONES, DEFAULT_USER_ZONES);
+}
+
+export function setUserZones(zones: UserZones): void {
+  write(STORAGE_KEYS.USER_ZONES, zones);
+}
+
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export interface ActivatedObjective {
@@ -312,33 +323,73 @@ export interface CombinedTrainingPlan {
 export type ConflictList = string[];
 
 export interface WorkoutLog {
-  cardio: ParsedCorosSession[];
+  cardio: CardioSession[];
   strength: StrengthSession[];
   climbing: ClimbingSession[];
   conditioning: ConditioningSession[];
 }
 
-export interface ParsedCorosSession {
+export interface ZoneDistribution {
+  z1: number;
+  z2: number;
+  z3: number;
+  z4: number;
+  z5: number;
+}
+
+export interface CardioSession {
   id: string;
   date: string;
-  corosType: string;
-  filename: string;
-  durationMinutes: number;
-  movingTimeMinutes: number;
-  distanceKm: number;
-  elevationGainM: number;
-  elevationLossM: number;
+  startTime: string;
+  activityType: string;
+  source: 'fit';
+  duration: number;           // seconds
+  distance: number;           // meters
+  elevationGain: number;      // feet
   avgHR: number | null;
   maxHR: number | null;
-  calories: number | null;
-  annotation: {
-    packWeight?: string;
-    terrain?: string;
-    weightsUsed?: boolean;
-    perceivedEffort?: number;
-    notes?: string;
-  };
+  zoneDistribution: ZoneDistribution | null;
+  trainingLoad: { score: number; classification: 'low' | 'moderate' | 'high' } | null;
+  weightsUsed?: boolean;
+  packWeight?: string;
+  terrain?: string;
+  perceivedEffort?: number;
+  notes?: string;
 }
+
+export interface ZoneThresholds {
+  z1: { low: number; high: number };
+  z2: { low: number; high: number };
+  z3: { low: number; high: number };
+  z4: { low: number; high: number };
+  z5: { low: number; high: number };
+}
+
+export interface UserZones {
+  method: 'age-based' | 'maf' | 'custom';
+  age: number | null;
+  maxHR: number | null;
+  mafNumber: number | null;
+  customZones: ZoneThresholds | null;
+  activeZones: ZoneThresholds;
+  lastUpdated: string | null;
+}
+
+export const DEFAULT_USER_ZONES: UserZones = {
+  method: 'age-based',
+  age: null,
+  maxHR: null,
+  mafNumber: null,
+  customZones: null,
+  activeZones: {
+    z1: { low: 0, high: 115 },
+    z2: { low: 115, high: 140 },
+    z3: { low: 140, high: 158 },
+    z4: { low: 158, high: 175 },
+    z5: { low: 175, high: 220 },
+  },
+  lastUpdated: null,
+};
 
 export interface StrengthSession {
   id: string;
