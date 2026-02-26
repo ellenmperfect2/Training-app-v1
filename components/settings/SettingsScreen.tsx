@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { getLastExportDate, setLastExportDate, clearLastExportDate } from '@/lib/storage';
+import { useTheme } from '@/lib/theme-context';
 
 const APP_VERSION = '0.1.0';
 
@@ -34,6 +35,7 @@ function formatDate(iso: string): string {
 }
 
 export default function SettingsScreen() {
+  const { theme: T } = useTheme();
   const [lastExportDate, setLastExportDateState] = useState<string | null>(null);
   const [exportMessage, setExportMessage] = useState<string | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
@@ -163,52 +165,67 @@ export default function SettingsScreen() {
 
   // ── Render ─────────────────────────────────────────────────────────────
 
+  const sectionStyle = {
+    background: T.bg2,
+    border: `1px solid ${T.line}`,
+    borderRadius: 8,
+    padding: 16,
+  };
+
   return (
     <div className="space-y-6">
 
       {/* Info panel */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-2">
+      <section style={sectionStyle} className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-zinc-500">App version</span>
-          <span className="text-xs font-mono text-zinc-400">{APP_VERSION}</span>
+          <span style={{ fontSize: 12, color: T.inkMid }}>App version</span>
+          <span style={{ fontSize: 12, fontFamily: 'monospace', color: T.inkMid }}>{APP_VERSION}</span>
         </div>
         {lastExportDate && (
           <div className="flex items-center justify-between">
-            <span className="text-xs text-zinc-500">Last backup from this device</span>
-            <span className="text-xs text-zinc-400">{formatDate(lastExportDate)}</span>
+            <span style={{ fontSize: 12, color: T.inkMid }}>Last backup from this device</span>
+            <span style={{ fontSize: 12, color: T.inkMid }}>{formatDate(lastExportDate)}</span>
           </div>
         )}
-        <p className="text-xs text-zinc-500 pt-2 border-t border-zinc-800 mt-2">
+        <p style={{ fontSize: 12, color: T.inkDim, paddingTop: 8, borderTop: `1px solid ${T.line}`, marginTop: 8 }}>
           Your data is stored in this browser only. Export regularly to protect against data
           loss. To move to a new device, export here and import on the new device.
         </p>
       </section>
 
       {/* Export */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+      <section style={sectionStyle} className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-200">Export My Data</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
-            Download all your workout history, check-ins, objectives, and settings as a JSON
-            file.
+          <h2 style={{ fontSize: 14, fontWeight: 600, color: T.ink }}>Export My Data</h2>
+          <p style={{ fontSize: 12, color: T.inkMid, marginTop: 2 }}>
+            Download all your workout history, check-ins, objectives, and settings as a JSON file.
           </p>
         </div>
         <button
           onClick={handleExport}
-          className="px-4 py-2 rounded bg-zinc-700 hover:bg-zinc-600 text-sm text-zinc-100 font-medium transition-colors"
+          style={{
+            padding: '8px 16px',
+            borderRadius: 6,
+            background: T.surface,
+            border: `1px solid ${T.line}`,
+            color: T.ink,
+            fontSize: 14,
+            fontWeight: 500,
+            cursor: 'pointer',
+          }}
         >
           Export My Data
         </button>
         {exportMessage && (
-          <p className="text-xs text-green-400">{exportMessage}</p>
+          <p style={{ fontSize: 12, color: T.mossHi }}>{exportMessage}</p>
         )}
       </section>
 
       {/* Import */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+      <section style={sectionStyle} className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-200">Restore from Backup</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
+          <h2 style={{ fontSize: 14, fontWeight: 600, color: T.ink }}>Restore from Backup</h2>
+          <p style={{ fontSize: 12, color: T.inkMid, marginTop: 2 }}>
             Replace all current data with a previously exported backup file.
           </p>
         </div>
@@ -221,26 +238,44 @@ export default function SettingsScreen() {
         />
         <button
           onClick={handleImportClick}
-          className="px-4 py-2 rounded bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-sm text-zinc-300 font-medium transition-colors"
+          style={{
+            padding: '8px 16px',
+            borderRadius: 6,
+            background: T.bg2,
+            border: `1px solid ${T.line}`,
+            color: T.inkMid,
+            fontSize: 14,
+            fontWeight: 500,
+            cursor: 'pointer',
+          }}
         >
           Restore from Backup
         </button>
         {importError && (
-          <p className="text-xs text-red-400">{importError}</p>
+          <p style={{ fontSize: 12, color: T.warn }}>{importError}</p>
         )}
       </section>
 
       {/* Clear All Data */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+      <section style={sectionStyle} className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-200">Clear All Data</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
+          <h2 style={{ fontSize: 14, fontWeight: 600, color: T.ink }}>Clear All Data</h2>
+          <p style={{ fontSize: 12, color: T.inkMid, marginTop: 2 }}>
             Permanently delete all workout history, check-ins, objectives, and settings.
           </p>
         </div>
         <button
           onClick={() => setClearModal(true)}
-          className="px-4 py-2 rounded bg-red-900/30 hover:bg-red-900/50 border border-red-800 text-sm text-red-400 font-medium transition-colors"
+          style={{
+            padding: '8px 16px',
+            borderRadius: 6,
+            background: T.warn + '22',
+            border: `1px solid ${T.warn}66`,
+            color: T.warn,
+            fontSize: 14,
+            fontWeight: 500,
+            cursor: 'pointer',
+          }}
         >
           Clear All Data
         </button>
@@ -248,24 +283,24 @@ export default function SettingsScreen() {
 
       {/* Import confirmation modal */}
       {importModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
-          <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-6 max-w-sm w-full space-y-4">
-            <h3 className="text-sm font-semibold text-zinc-100">Confirm Restore</h3>
-            <p className="text-sm text-zinc-400">
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '0 16px' }}>
+          <div style={{ background: T.bg2, border: `1px solid ${T.line}`, borderRadius: 8, padding: 24, maxWidth: 384, width: '100%' }} className="space-y-4">
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: T.ink }}>Confirm Restore</h3>
+            <p style={{ fontSize: 14, color: T.inkMid }}>
               This will replace all current app data with the contents of this backup from{' '}
-              <span className="text-zinc-200">{formatDate(importModal.exportDate)}</span>.
+              <span style={{ color: T.ink }}>{formatDate(importModal.exportDate)}</span>.
               This cannot be undone. Continue?
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setImportModal(null)}
-                className="px-4 py-2 rounded text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+                style={{ padding: '8px 16px', borderRadius: 6, background: 'none', border: 'none', color: T.inkMid, fontSize: 14, cursor: 'pointer' }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleImportConfirm}
-                className="px-4 py-2 rounded bg-zinc-700 hover:bg-zinc-600 text-sm text-zinc-100 font-medium transition-colors"
+                style={{ padding: '8px 16px', borderRadius: 6, background: T.surface, border: `1px solid ${T.line}`, color: T.ink, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
               >
                 Confirm
               </button>
@@ -276,45 +311,65 @@ export default function SettingsScreen() {
 
       {/* Import success overlay */}
       {importSuccess && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
-          <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-6 max-w-sm w-full">
-            <p className="text-sm text-green-400 text-center">{importSuccess}</p>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '0 16px' }}>
+          <div style={{ background: T.bg2, border: `1px solid ${T.line}`, borderRadius: 8, padding: 24, maxWidth: 384, width: '100%' }}>
+            <p style={{ fontSize: 14, color: T.mossHi, textAlign: 'center' }}>{importSuccess}</p>
           </div>
         </div>
       )}
 
       {/* Clear All Data confirmation modal */}
       {clearModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
-          <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-6 max-w-sm w-full space-y-4">
-            <h3 className="text-sm font-semibold text-red-400">Delete All Data</h3>
-            <p className="text-sm text-zinc-400">
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '0 16px' }}>
+          <div style={{ background: T.bg2, border: `1px solid ${T.line}`, borderRadius: 8, padding: 24, maxWidth: 384, width: '100%' }} className="space-y-4">
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: T.warn }}>Delete All Data</h3>
+            <p style={{ fontSize: 14, color: T.inkMid }}>
               This permanently deletes all your workout history, check-ins, objectives, and
               settings. This cannot be undone.
             </p>
             <div>
-              <label className="block text-xs text-zinc-500 mb-1">
+              <label style={{ display: 'block', fontSize: 12, color: T.inkDim, marginBottom: 4 }}>
                 Type DELETE to confirm
               </label>
               <input
                 type="text"
                 value={clearInput}
                 onChange={(e) => setClearInput(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-zinc-500"
+                style={{
+                  width: '100%',
+                  background: T.bg,
+                  border: `1px solid ${T.line}`,
+                  borderRadius: 4,
+                  padding: '8px 12px',
+                  fontSize: 14,
+                  color: T.ink,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
                 placeholder="DELETE"
               />
             </div>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => { setClearModal(false); setClearInput(''); }}
-                className="px-4 py-2 rounded text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+                style={{ padding: '8px 16px', borderRadius: 6, background: 'none', border: 'none', color: T.inkMid, fontSize: 14, cursor: 'pointer' }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleClearConfirm}
                 disabled={clearInput !== 'DELETE'}
-                className="px-4 py-2 rounded text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-red-800 hover:bg-red-700 text-zinc-100"
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 6,
+                  background: T.warn,
+                  border: 'none',
+                  color: T.bg,
+                  fontSize: 14,
+                  fontWeight: 500,
+                  cursor: clearInput !== 'DELETE' ? 'not-allowed' : 'pointer',
+                  opacity: clearInput !== 'DELETE' ? 0.4 : 1,
+                }}
               >
                 Delete All
               </button>

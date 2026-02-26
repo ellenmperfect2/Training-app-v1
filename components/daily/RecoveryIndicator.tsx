@@ -2,6 +2,8 @@
 import type { DailyCheckIn, PersonalBaseline } from '@/lib/storage';
 import type { ClassificationDetail } from '@/lib/recovery';
 import { recoveryColor, recoveryLabel } from '@/lib/recovery';
+import { useTheme } from '@/lib/theme-context';
+import { TYPE } from '@/lib/theme';
 
 interface Props {
   detail: ClassificationDetail;
@@ -17,6 +19,7 @@ const BAND_COLORS: Record<string, string> = {
 };
 
 export default function RecoveryIndicator({ detail, checkIn, baseline }: Props) {
+  const { theme: T } = useTheme();
   const color = recoveryColor(detail.classification);
   const label = recoveryLabel(detail.classification);
   const bandClass = BAND_COLORS[color] ?? 'bg-glacier-edge';
@@ -29,7 +32,16 @@ export default function RecoveryIndicator({ detail, checkIn, baseline }: Props) 
       <div className={`absolute top-0 left-0 right-0 h-1 ${bandClass}`} />
 
       <div className="flex items-center gap-2">
-        <span className="text-xs text-glacier-secondary uppercase tracking-wider font-medium">Recovery</span>
+        <span style={{
+          fontFamily: TYPE.sans,
+          fontSize: 8,
+          fontWeight: 700,
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase' as const,
+          color: T.moss,
+          borderBottom: `1px solid ${T.moss}33`,
+          paddingBottom: 3,
+        }}>Recovery</span>
         <span className="text-sm font-medium text-glacier-primary">{label}</span>
       </div>
 

@@ -8,6 +8,8 @@ import {
 import { computeStatusLayer } from '@/lib/status';
 import { getCurrentWeekDates } from '@/lib/stimulus-engine';
 import type { StatusLayer as StatusLayerType } from '@/lib/status';
+import { useTheme } from '@/lib/theme-context';
+import { TYPE } from '@/lib/theme';
 
 const LIGHT_COLORS: Record<string, string> = {
   green:  'text-glacier-success',
@@ -16,6 +18,7 @@ const LIGHT_COLORS: Record<string, string> = {
 };
 
 export default function StatusLayer() {
+  const { theme: T } = useTheme();
   const [status, setStatus] = useState<StatusLayerType | null>(null);
 
   useEffect(() => {
@@ -42,7 +45,17 @@ export default function StatusLayer() {
 
   return (
     <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-4 card-hover">
-      <div className="text-xs text-glacier-secondary uppercase tracking-wider font-medium">This Week</div>
+      <div style={{
+        fontFamily: TYPE.sans,
+        fontSize: 8,
+        fontWeight: 700,
+        letterSpacing: '0.14em',
+        textTransform: 'uppercase' as const,
+        color: T.moss,
+        borderBottom: `1px solid ${T.moss}33`,
+        paddingBottom: 5,
+        marginBottom: 12,
+      }}>This Week</div>
 
       {/* Volume stat tiles — Part F */}
       <div className="grid grid-cols-3 gap-3">

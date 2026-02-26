@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useTheme } from '@/lib/theme-context';
 import objectiveLibrary from '@/data/objective-library.json';
 import benchmarkLibrary from '@/data/benchmark-library.json';
 import assessmentLibrary from '@/data/assessment-library.json';
@@ -25,6 +26,7 @@ interface Props {
 function uid() { return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`; }
 
 export default function ObjectiveSelector({ onActivate, onClose, existingObjectiveIds }: Props) {
+  const { theme: T } = useTheme();
   const library = objectiveLibrary as LibraryEntry[];
   const available = library.filter((o) => !existingObjectiveIds.includes(o.id));
 
@@ -108,7 +110,8 @@ export default function ObjectiveSelector({ onActivate, onClose, existingObjecti
             <label className="block text-xs text-glacier-secondary mb-1">Priority weight: {priorityWeight}</label>
             <input type="range" min={1} max={10} value={priorityWeight}
               onChange={(e) => setPriorityWeight(parseInt(e.target.value))}
-              className="w-full accent-[#39c5cf]" />
+              style={{ accentColor: T.moss }}
+              className="w-full" />
           </div>
           <button onClick={handleActivate} disabled={!targetDate}
             className="w-full py-2 bg-glacier-accent hover:opacity-90 disabled:opacity-40 text-glacier-bg rounded text-sm font-medium transition-opacity">

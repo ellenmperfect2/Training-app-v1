@@ -10,6 +10,7 @@ import {
 } from '@/lib/storage';
 import objectiveLibraryData from '@/data/objective-library.json';
 import assessmentLibraryData from '@/data/assessment-library.json';
+import { useTheme } from '@/lib/theme-context';
 
 const PACK_WEIGHTS = ['none', 'light', 'moderate', 'heavy'] as const;
 const LIMITATIONS = ['knee', 'shoulder', 'ankle', 'back', 'forearm', 'other'] as const;
@@ -37,6 +38,7 @@ type LibraryEntry = typeof objectiveLibraryData[0];
 type AssessmentLibEntry = { objectiveId: string; assessments: Array<{ id: string }> };
 
 export default function ManageObjectives() {
+  const { theme: T } = useTheme();
   const [active, setLocalActive] = useState<ActivatedObjective[]>([]);
   const [archived, setLocalArchived] = useState<ArchivedObjective[]>([]);
   const [deactivateId, setDeactivateId] = useState<string | null>(null);
@@ -251,7 +253,8 @@ export default function ManageObjectives() {
                   min={1} max={5}
                   value={Math.min(obj.priorityWeight, 5)}
                   onChange={(e) => updatePriority(obj.id, parseInt(e.target.value))}
-                  className="w-full max-w-xs accent-[#39c5cf]"
+                  style={{ accentColor: T.moss }}
+                  className="w-full max-w-xs"
                 />
               </div>
 
@@ -409,7 +412,8 @@ export default function ManageObjectives() {
                     min={1} max={5}
                     value={newPriority}
                     onChange={(e) => setNewPriority(parseInt(e.target.value))}
-                    className="w-full max-w-xs accent-[#39c5cf]"
+                    style={{ accentColor: T.moss }}
+                  className="w-full max-w-xs"
                   />
                 </div>
 

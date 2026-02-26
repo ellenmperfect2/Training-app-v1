@@ -1,10 +1,7 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Nav from '@/components/ui/Nav';
-
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
+import { ThemeProvider } from '@/lib/theme-context';
 
 export const metadata: Metadata = {
   title: 'Summit Dashboard',
@@ -14,11 +11,21 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-glacier-bg text-glacier-primary min-h-screen`}>
-        <Nav />
-        <main className="max-w-3xl mx-auto px-4 py-8">
-          {children}
-        </main>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap"
+        />
+      </head>
+      <body className="antialiased bg-glacier-bg text-glacier-primary min-h-screen">
+        <ThemeProvider>
+          <div style={{ transition: 'background 0.2s, color 0.2s' }}>
+            <Nav />
+            <main className="max-w-3xl mx-auto px-4 py-8">
+              {children}
+            </main>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

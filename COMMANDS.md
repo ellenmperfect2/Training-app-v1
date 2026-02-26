@@ -31,6 +31,24 @@ Version number increments with every substantive change. Summary should be 3–6
 
 ---
 
+## ADD TOPO
+- **Scope:** `/data/topo-library.json` only
+- **Input:** KML or GeoJSON contour file, mountain name, location
+- **Output:** New entry appended to `topos` array; `id` in kebab-case; `contours` array populated from file
+- **Never:** Modify `topo-page-config.json` — that is a separate ASSIGN TOPO operation
+- **Triggers:** "add topo", "add mountain", "add contour data", "new topo"
+
+---
+
+## ASSIGN TOPO
+- **Scope:** `/data/topo-page-config.json` only
+- **Input:** page name + topo id (or `null` to clear)
+- **Output:** Updated `assignments` entry for the specified page
+- **Never:** Modify `topo-library.json` or any component code
+- **Triggers:** "assign topo", "change topo for page", "set mountain for", "remove topo from"
+
+---
+
 ## ADD OBJECTIVE FROM SPEC
 - **Scope:** benchmark-library.json, assessment-library.json, objective-library.json, and the objective selector UI
 - **Never touch:** active user objective data, training logs, training config, exercise library, archived objectives
@@ -67,6 +85,13 @@ Version number increments with every substantive change. Summary should be 3–6
 - **Scope:** Settings screen UI (`/settings`), data export/import logic, localStorage read/write for all keys during import/export operations only
 - **Never Touch:** `/lib/recommendation`, `/lib/recovery`, `/lib/zones.js`, `objective-library.json`, `benchmark-library.json`, `assessment-library.json`, `training-config.json`, `training-config-schema.json`, `objective-spec-schema.json`
 - **Triggers:** "settings", "export", "import", "backup", "restore", "clear all data"
+
+---
+
+## ADD OBJECTIVE MATCHER
+- **Scope:** `/lib/objective-matcher.js` only. Read access to `activeObjectives` localStorage key, `objective-library.json`, and `workoutLog` (read only at call time — no writes).
+- **Never touch:** `/lib/recommendation`, `/lib/recovery`, `/lib/fit-parser.ts`, `/lib/zones.ts`, `workoutLog` shape, any other localStorage key
+- **Triggers:** "objective matcher", "contributing objectives", "which objective did this workout count toward", "workout objective contribution"
 
 ---
 

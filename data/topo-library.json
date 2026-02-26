@@ -1,0 +1,18 @@
+{
+  "version": "1.0",
+  "topos": [
+    {
+      "id": "half-dome",
+      "name": "Half Dome",
+      "location": "Yosemite, CA",
+      "elevationRangeM": [1289, 2608],
+      "coordinateBounds": {
+        "minLon": -119.5542,
+        "maxLon": -119.5151,
+        "minLat": 37.7361,
+        "maxLat": 37.7551
+      },
+      "contours": []
+    }
+  ]
+}

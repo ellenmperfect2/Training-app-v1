@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "assignments": {
+    "dashboard":    "half-dome",
+    "cardio":       "half-dome",
+    "objectives":   "half-dome",
+    "check-in":     "half-dome",
+    "strength":     null,
+    "climbing":     null,
+    "conditioning": null,
+    "activity":     null
+  }
+}

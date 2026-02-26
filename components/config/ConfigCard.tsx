@@ -3,6 +3,8 @@ import { useState } from 'react';
 import type { TrainingConfig, CardioWeeklyTarget, StrengthWeeklyTarget, ClimbingWeeklyTarget } from '@/lib/storage';
 import { parseTrainingConfigXml, isConfigExpired } from '@/lib/parsers/config-parser';
 import { setActiveTrainingConfig } from '@/lib/storage';
+import { useTheme } from '@/lib/theme-context';
+import { TYPE } from '@/lib/theme';
 
 interface Props {
   config: TrainingConfig;
@@ -108,6 +110,7 @@ function ClimbingTargetBlock({ target }: { target: ClimbingWeeklyTarget }) {
 // ── Main component ─────────────────────────────────────────────────────────
 
 export default function ConfigCard({ config }: Props) {
+  const { theme: T } = useTheme();
   const [showPaste, setShowPaste] = useState(false);
   const [pasteInput, setPasteInput] = useState('');
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -136,7 +139,16 @@ export default function ConfigCard({ config }: Props) {
   return (
     <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3 card-hover">
       <div className="flex items-center justify-between">
-        <div className="text-xs text-glacier-secondary uppercase tracking-wider font-medium">Training Config</div>
+        <div style={{
+          fontFamily: TYPE.sans,
+          fontSize: 8,
+          fontWeight: 700,
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase' as const,
+          color: T.moss,
+          borderBottom: `1px solid ${T.moss}33`,
+          paddingBottom: 5,
+        }}>Training Config</div>
         {!isDefault && (
           <span className={`text-xs ${expired ? 'text-glacier-danger' : 'text-glacier-muted'}`}>
             {expired ? 'Expired' : `Expires ${config['expires-date']}`}

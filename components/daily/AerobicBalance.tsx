@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { getWorkoutLog } from '@/lib/storage';
 import { computeZoneTotals, aerobicBalanceLabel } from '@/lib/zones';
+import { useTheme } from '@/lib/theme-context';
+import { TYPE } from '@/lib/theme';
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
@@ -62,19 +64,29 @@ export default function AerobicBalance() {
   if (!loaded) return null;
   if (!hasCardio) return null;
 
+  const { theme: T } = useTheme();
   const maxElev = Math.max(...elevSparkline, 1);
   const balanceLabel = aerobicBalanceLabel(aerobicPct);
   const balanceColor =
-    aerobicPct >= 75 ? 'text-glacier-success' :
-    aerobicPct >= 50 ? 'text-glacier-warning' :
-    'text-glacier-fatigued';
+    aerobicPct >= 75 ? T.mossHi :
+    aerobicPct >= 50 ? T.sand :
+    T.warn;
 
   return (
     <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3 card-hover">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-glacier-primary">Cardio This Week</h2>
+        <div style={{
+          fontFamily: TYPE.sans,
+          fontSize: 8,
+          fontWeight: 700,
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase' as const,
+          color: T.moss,
+          borderBottom: `1px solid ${T.moss}33`,
+          paddingBottom: 5,
+        }}>Cardio This Week</div>
         {z12Hours + z45Hours > 0 && (
-          <span className={`text-xs ${balanceColor}`}>{balanceLabel}</span>
+          <span style={{ fontSize: 12, color: balanceColor }}>{balanceLabel}</span>
         )}
       </div>
 

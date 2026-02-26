@@ -1,5 +1,5 @@
 # Summit Dashboard — CLAUDE.md
-**v12 — added EDIT ACTIVITY LOG command; workoutLog now read/write from activity UI — 2026-02-26**
+**v13 — theme system, topo library, EDIT ACTIVITY LOG — 2026-02-26**
 
 Claude Code reads this file at the start of every session. It reflects the current architectural state of the app. Update this file (incrementing v[N]) after any change to file ownership, localStorage structure, data shapes, command types, or system architecture.
 
@@ -11,6 +11,8 @@ Claude Code reads this file at the start of every session. It reflects the curre
 - **Storage:** localStorage only — no backend, no database, no API calls
 - **AI integration:** Claude.ai paste workflows only — no API keys, no environment variables
 - **Deployment:** Vercel via GitHub (repo: ellenmperfect2/Training-app-v1)
+- **Theme system:** JS context-based (ThemeProvider + useTheme). All color tokens come from `lib/theme.js`. CSS custom properties are updated at runtime by ThemeProvider to make existing Tailwind color utilities (bg-glacier-*, text-glacier-*) theme-responsive. Default theme: `"light"`.
+- **Fonts:** DM Serif Display + DM Sans (Google Fonts). DM Serif Display used only for workout title, objective name, and key numeric callouts. All other text uses DM Sans.
 
 ---
 
@@ -39,6 +41,13 @@ Claude Code reads this file at the start of every session. It reflects the curre
 | Settings screen | `components/settings/`, `app/settings/` | MANAGE SETTINGS |
 | Check-in history | `components/checkin/CheckInHistory.tsx`, `app/checkin/history/` | MANAGE CHECKIN LOG |
 | Benchmark checklist | `components/benchmarks/BenchmarkChecklist.tsx`, `app/benchmarks/` | MANAGE BENCHMARK LOG |
+| Theme tokens | `lib/theme.js` | AESTHETIC UPDATE |
+| Theme context | `lib/theme-context.js` | AESTHETIC UPDATE |
+| Topo utilities | `lib/topo-utils.js` | ADD TOPO, ASSIGN TOPO |
+| Topo library | `data/topo-library.json` | ADD TOPO |
+| Topo page config | `data/topo-page-config.json` | ASSIGN TOPO |
+| Topo renderer | `components/TopoLayer.jsx` | AESTHETIC UPDATE |
+| Survey grid | `components/SurveyGrid.jsx` | AESTHETIC UPDATE |
 | UI components | `components/` | AESTHETIC UPDATE, PROCESS DAILY DATA, MANAGE OBJECTIVES, MANAGE USER PREFERENCES, MANAGE SETTINGS |
 | Pages / Nav | `app/`, `components/ui/Nav.tsx` | AESTHETIC UPDATE, PROCESS DAILY DATA, MANAGE USER PREFERENCES, MANAGE SETTINGS |
 
@@ -63,6 +72,7 @@ Claude Code reads this file at the start of every session. It reflects the curre
 | `userZones` | `UserZones` | MANAGE ZONES |
 | `lastExportDate` | ISO string \| null — device-local, never exported | MANAGE SETTINGS |
 | `benchmarkCompletionLog` | `Record<string, BenchmarkCompletion>` — key is `objectiveId.benchmarkId` | MANAGE BENCHMARK LOG |
+| `summitTheme` | `"light"` \| `"dark"` — default `"light"` | AESTHETIC UPDATE |
 
 ---
 
@@ -213,3 +223,6 @@ Condition strings evaluated in `lib/stimulus-engine/index.ts`:
 - The recovery engine (`/lib/recovery`) must never be modified except by UPDATE RECOVERY RULES
 - JSON data files in `/data` are the single source of truth for objective/benchmark/assessment definitions
 - localStorage is the single source of truth for all user data
+- **Theme system:** All color values in components must come from `useTheme()` → `T.{token}` (inline styles) or from CSS custom properties updated by ThemeProvider. No hardcoded hex values in component or page files.
+- **Topo lines:** `topo-library.json` stores contour data (ADD TOPO command only). `topo-page-config.json` controls page assignments (ASSIGN TOPO command only). These two files are never modified by the same command. `topo-page-config.json` is read-only at runtime — never written by the app.
+- **Font rule:** DM Serif Display (`TYPE.serif` / `TYPE.displayXl/Lg/Md/Num`) is used only for: workout title (RecommendationCard), objective name (ObjectiveCard), and key numeric callouts (weeks-out in ObjectiveCard). All other text must use DM Sans.
