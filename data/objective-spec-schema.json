@@ -105,7 +105,9 @@
         "required": true
       },
       "taper-weeks": { "type": "number", "required": true },
-      "simulation-block-weeks-out": { "type": "number", "required": true }
+      "simulation-block-weeks-out": { "type": "number", "required": true },
+      "threshold-capacity-required": { "type": "boolean", "required": false },
+      "threshold-introduction-weeks-out": { "type": "number", "required": false }
     }
   }
 }

@@ -1,5 +1,5 @@
 # Summit Dashboard — CLAUDE.md
-**v4 — replaced CSV upload with FIT parser, added zones system, new CardioSession shape, /zones route — 2026-02-26**
+**v5 — objective-aware zone recommendations, threshold fields on ActivatedObjective, elevation on dashboard — 2026-02-26**
 
 Claude Code reads this file at the start of every session. It reflects the current architectural state of the app. Update this file (incrementing v[N]) after any change to file ownership, localStorage structure, data shapes, command types, or system architecture.
 
@@ -131,6 +131,10 @@ interface ActivatedObjective {
   packWeight?: string;          // 'none' | 'light' | 'moderate' | 'heavy'
   region?: string;
   limitations?: string[];       // from: knee, shoulder, ankle, back, forearm, other
+  // Added Prompt 7 — from objective training-plan-logic and profile
+  thresholdCapacityRequired?: boolean;
+  thresholdIntroductionWeeksOut?: number;
+  maxAltitudeFt?: number;
 }
 ```
 

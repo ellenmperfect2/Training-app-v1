@@ -278,6 +278,11 @@ export interface ActivatedObjective {
   packWeight?: string;
   region?: string;
   limitations?: string[];
+  // From objective training-plan-logic — set at activation time
+  thresholdCapacityRequired?: boolean;
+  thresholdIntroductionWeeksOut?: number;
+  // From objective profile — set at activation time
+  maxAltitudeFt?: number;
 }
 
 export interface ArchivedObjective {

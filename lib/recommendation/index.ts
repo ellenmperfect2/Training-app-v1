@@ -83,6 +83,12 @@ function getLast4WeeksCardio(log: WorkoutLog, today: string) {
   return log.cardio.filter((s) => s.date >= cutoffStr && s.date <= today);
 }
 
+function getWeekStart(today: string): string {
+  const now = new Date(today);
+  now.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  return now.toISOString().slice(0, 10);
+}
+
 function buildZoneRecommendation(
   log: WorkoutLog,
   today: string,
@@ -95,57 +101,93 @@ function buildZoneRecommendation(
 
   const zones = getZoneThresholds();
   const totals = computeZoneTotals(sessions);
-
-  const hasAerobicObjective = activeObjectives.some((obj) => {
-    const type = (obj.type ?? '').toLowerCase();
-    return type.includes('hike') || type.includes('mountain') || type.includes('climb') || type.includes('trail');
-  });
-
-  const minZ2Hours = config['cardio-zone2-minimum-hours'];
-  const weeklyZ2 = totals.z2Hours / 4; // average over 4 weeks
-  const totalCardioHours = totals.totalHours;
-  const anaerobicPct = totalCardioHours > 0
-    ? ((totals.z4Hours + totals.z5Hours) / totalCardioHours) * 100
+  const totalHours = totals.totalHours;
+  const anaerobicPct = totalHours > 0
+    ? ((totals.z4Hours + totals.z5Hours) / totalHours) * 100
     : 0;
 
-  // Priority 1: threshold deficit for aerobic objectives
-  if (hasAerobicObjective && anaerobicPct < 15 && totalCardioHours > 2) {
-    const z4low = zones.z4.low + prefs.hrCalibrationOffset;
-    const z4high = zones.z4.high + prefs.hrCalibrationOffset;
-    return {
-      cardioNote: `Z4–Z5 is only ${Math.round(anaerobicPct)}% of 4-week cardio — objective demands threshold work.`,
-      cardioParams: `3 × 10 min at threshold effort (target HR ${z4low}–${z4high} bpm) with 10 min Z1 recovery between intervals`,
-    };
-  }
+  const minZ2 = config['cardio-zone2-minimum-hours'];
+  const weekStart = getWeekStart(today);
+  const thisWeekZ2 = computeZoneTotals(
+    log.cardio.filter((s) => s.date >= weekStart && s.date <= today)
+  ).z2Hours;
 
-  // Priority 2: Z2 below config minimum
-  const weekStart = (() => {
-    const now = new Date(today);
-    now.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-    return now.toISOString().slice(0, 10);
-  })();
-  const thisWeekSessions = log.cardio.filter((s) => s.date >= weekStart && s.date <= today);
-  const thisWeekZ2 = computeZoneTotals(thisWeekSessions).z2Hours;
   const z2low = zones.z2.low + prefs.hrCalibrationOffset;
   const z2high = zones.z2.high + prefs.hrCalibrationOffset;
+  const z4low = zones.z4.low + prefs.hrCalibrationOffset;
+  const z4high = zones.z4.high + prefs.hrCalibrationOffset;
 
-  if (minZ2Hours > 0 && thisWeekZ2 < minZ2Hours) {
-    const remaining = Math.round((minZ2Hours - thisWeekZ2) * 10) / 10;
-    return {
-      cardioNote: `Z2 this week: ${thisWeekZ2.toFixed(1)}h — config minimum is ${minZ2Hours}h (${remaining}h remaining).`,
-      cardioParams: `Zone 2 cardio (target HR ${z2low}–${z2high} bpm) — aim for at least ${remaining}h today to meet weekly minimum`,
-    };
+  // ── With active objectives ──────────────────────────────────────────────
+
+  if (activeObjectives.length > 0) {
+    // Work from nearest objective
+    const sorted = [...activeObjectives].sort((a, b) => a.weeksRemaining - b.weeksRemaining);
+    const obj = sorted[0];
+
+    const thresholdRequired = obj.thresholdCapacityRequired ?? false;
+    const introWeeks = obj.thresholdIntroductionWeeksOut ?? 8;
+    const altFt = obj.maxAltitudeFt ?? 0;
+    const weeks = obj.weeksRemaining;
+
+    // Condition 1: threshold introduction phase — window is open, deficit exists
+    if (thresholdRequired && weeks <= introWeeks && anaerobicPct < 15 && totalHours > 2) {
+      const altNote = altFt > 8000 ? ' at altitude' : '';
+      return {
+        cardioNote: `${obj.name} demands threshold capacity${altNote}. Z4–Z5 has been ${Math.round(anaerobicPct)}% of 4-week cardio volume — ${weeks} week${weeks === 1 ? '' : 's'} remaining.`,
+        cardioParams: `3 × 10 min at threshold effort (target HR ${z4low}–${z4high} bpm) with 10 min Z1 recovery between efforts`,
+      };
+    }
+
+    // Condition 2: aerobic base thin, still in base phase (before threshold window)
+    if (minZ2 > 0 && thisWeekZ2 < minZ2 && weeks > introWeeks) {
+      const remaining = Math.round((minZ2 - thisWeekZ2) * 10) / 10;
+      return {
+        cardioNote: `Z2 this week: ${thisWeekZ2.toFixed(1)}h (minimum ${minZ2}h). Aerobic base phase is appropriate — threshold work begins in ~${introWeeks} weeks.`,
+        cardioParams: `Zone 2 cardio (target HR ${z2low}–${z2high} bpm) — ${remaining}h remaining to meet weekly minimum`,
+      };
+    }
+
+    // Condition 3: altitude objective approaching, threshold work absent
+    if (altFt > 8000 && weeks <= 8 && thresholdRequired && anaerobicPct < 10 && totalHours > 2) {
+      const avgWeeklyZ2 = totals.z2Hours / 4;
+      const z2Status = minZ2 > 0 && avgWeeklyZ2 >= minZ2 * 0.85 ? 'on track' : 'behind';
+      return {
+        cardioNote: `${obj.name} is above 8000ft. Aerobic base is ${z2Status}. Z4–Z5 has been only ${Math.round(anaerobicPct)}% of cardio with ${weeks} weeks remaining — altitude demands threshold capacity.`,
+        cardioParams: `3 × 10 min at threshold effort (target HR ${z4low}–${z4high} bpm) with 10 min Z1 recovery`,
+      };
+    }
+
+    return { cardioNote: null, cardioParams: null };
   }
 
-  // Priority 3: methodology-based targets (no objective)
-  if (activeObjectives.length === 0) {
-    const methodology = prefs.preferredMethodology;
-    if (methodology === 'uphill-athlete') {
-      const z2low2 = zones.z2.low + prefs.hrCalibrationOffset;
-      const z2high2 = zones.z2.high + prefs.hrCalibrationOffset;
+  // ── No objectives: methodology-based aerobic/anaerobic targets ──────────
+
+  const methodologyAerobicTarget: Record<string, number> = {
+    'uphill-athlete': 80,
+    'general-endurance': 70,
+    'balanced': 60,
+  };
+  const methodologyLabels: Record<string, string> = {
+    'uphill-athlete': 'Uphill Athlete',
+    'general-endurance': 'General Endurance',
+    'balanced': 'Balanced',
+  };
+
+  const aerobicTarget = methodologyAerobicTarget[prefs.preferredMethodology] ?? 80;
+  const anaerobicTarget = 100 - aerobicTarget;
+  const label = methodologyLabels[prefs.preferredMethodology] ?? 'Uphill Athlete';
+
+  if (totalHours > 0) {
+    if (totals.aerobicPct < aerobicTarget) {
       return {
-        cardioNote: `Uphill Athlete: aerobic base focus — Z2 builds the aerobic engine.`,
-        cardioParams: `Zone 2 aerobic session at conversational pace (target HR ${z2low2}–${z2high2} bpm)`,
+        cardioNote: `${label}: aerobic target is ${aerobicTarget}% Z1–Z2. Current 4-week balance is ${totals.aerobicPct}%.`,
+        cardioParams: `Zone 2 cardio (target HR ${z2low}–${z2high} bpm) to build aerobic base toward ${aerobicTarget}% target`,
+      };
+    }
+    if (Math.round(anaerobicPct) < anaerobicTarget && totalHours > 2) {
+      return {
+        cardioNote: `${label}: threshold target is ${anaerobicTarget}% Z4–Z5. Current 4-week balance is ${Math.round(anaerobicPct)}%.`,
+        cardioParams: `3 × 10 min at threshold effort (target HR ${z4low}–${z4high} bpm) with 10 min Z1 recovery`,
       };
     }
   }
