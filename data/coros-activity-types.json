@@ -5,7 +5,7 @@
       "domain": "cardio",
       "category": "Aerobic",
       "subcategory": "Endurance",
-      "annotationFields": ["inclineUsed", "perceivedEffort", "notes"]
+      "annotationFields": ["weightsUsed", "perceivedEffort", "notes"]
     },
     {
       "corosType": "OutdoorRun",
@@ -91,6 +91,14 @@
       "category": "Aerobic",
       "subcategory": "Cross Training",
       "annotationFields": ["perceivedEffort", "notes"]
+    },
+    {
+      "corosType": "GeneralCardio",
+      "domain": "cardio",
+      "category": "Aerobic",
+      "subcategory": "General",
+      "annotationFields": ["perceivedEffort", "notes"],
+      "acceptsAnyFilename": true
     }
   ],
   "annotationFieldDefinitions": {
@@ -117,10 +125,9 @@
       ],
       "required": false
     },
-    "inclineUsed": {
-      "label": "Incline used?",
+    "weightsUsed": {
+      "label": "Were weights used? (e.g. weighted vest, pack)",
       "type": "boolean",
-      "showIf": "elevationGain > 0",
       "required": false
     },
     "perceivedEffort": {

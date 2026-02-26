@@ -20,7 +20,8 @@ function today(): string {
 export default function CheckInForm() {
   const [date, setDate] = useState(today());
   const [sleepQuality, setSleepQuality] = useState<DailyCheckIn['sleep']['quality']>('Good');
-  const [sleepHours, setSleepHours] = useState('');
+  const [sleepHoursInt, setSleepHoursInt] = useState('');
+  const [sleepMinutes, setSleepMinutes] = useState('');
   const [bedtime, setBedtime] = useState('');
   const [wakeTime, setWakeTime] = useState('');
   const [hrv, setHrv] = useState('');
@@ -59,7 +60,7 @@ export default function CheckInForm() {
       date,
       sleep: {
         quality: sleepQuality,
-        hours: parseFloat(sleepHours) || 0,
+        hours: (parseInt(sleepHoursInt) || 0) + (parseInt(sleepMinutes) || 0) / 60,
         bedtime: bedtime || undefined,
         wakeTime: wakeTime || undefined,
       },
@@ -196,15 +197,28 @@ export default function CheckInForm() {
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-4 gap-3">
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Hours slept</label>
+            <label className="block text-xs text-zinc-400 mb-1">Hours</label>
             <input
               type="number"
-              step="0.5"
-              value={sleepHours}
-              onChange={(e) => setSleepHours(e.target.value)}
-              placeholder="7.5"
+              min="0"
+              max="24"
+              value={sleepHoursInt}
+              onChange={(e) => setSleepHoursInt(e.target.value)}
+              placeholder="7"
+              className="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1.5 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Minutes</label>
+            <input
+              type="number"
+              min="0"
+              max="59"
+              value={sleepMinutes}
+              onChange={(e) => setSleepMinutes(e.target.value)}
+              placeholder="30"
               className="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1.5 text-sm"
             />
           </div>

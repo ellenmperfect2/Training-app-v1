@@ -5,6 +5,34 @@ import { appendCardioSession, type ParsedCorosSession } from '@/lib/storage';
 
 type ParsedPending = Awaited<ReturnType<typeof parseCorosCsv>> & { success: true };
 
+function today(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function makeGeneralCardioPending(filename: string): ParsedPending {
+  const id = `${today()}-GeneralCardio-${Date.now()}`;
+  return {
+    success: true,
+    session: {
+      id,
+      date: today(),
+      corosType: 'GeneralCardio',
+      filename,
+      durationMinutes: 0,
+      movingTimeMinutes: 0,
+      distanceKm: 0,
+      elevationGainM: 0,
+      elevationLossM: 0,
+      avgHR: null,
+      maxHR: null,
+      calories: null,
+    },
+    corosType: 'GeneralCardio',
+    requiresAnnotation: true,
+    annotationFields: ['perceivedEffort', 'notes'],
+  };
+}
+
 export default function UploadModal() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<ParsedPending | null>(null);
@@ -23,18 +51,27 @@ export default function UploadModal() {
     const result = parseCorosCsv(file.name, text);
 
     if (!result.success) {
+      // Filename/type mismatch → silently fall back to General Cardio
+      if (
+        result.error.includes('does not match Coros format') ||
+        result.error.includes('Unknown Coros activity type')
+      ) {
+        const gcPending = makeGeneralCardioPending(file.name);
+        setPending(gcPending);
+        setAnnotation({ perceivedEffort: '', notes: '' });
+        return;
+      }
       setError(result.error);
       return;
     }
 
-    // Check if IndoorStrength — suggest native logger
+    // IndoorStrength — suggest native logger
     if (result.corosType === 'IndoorStrength') {
       setError('IndoorStrength detected — use the Strength logger instead for detailed set/rep tracking.');
       return;
     }
 
     setPending(result);
-    // Pre-fill annotation defaults
     const defaults: Record<string, string> = {};
     for (const field of result.annotationFields) {
       defaults[field] = '';
@@ -50,7 +87,7 @@ export default function UploadModal() {
       annotation: {
         packWeight: annotation.packWeight as ParsedCorosSession['annotation']['packWeight'] | undefined,
         terrain: annotation.terrain || undefined,
-        inclineUsed: annotation.inclineUsed === 'true' ? true : annotation.inclineUsed === 'false' ? false : undefined,
+        weightsUsed: annotation.weightsUsed === 'true' ? true : annotation.weightsUsed === 'false' ? false : undefined,
         perceivedEffort: annotation.perceivedEffort ? parseInt(annotation.perceivedEffort) : undefined,
         notes: annotation.notes || undefined,
       },
@@ -74,7 +111,7 @@ export default function UploadModal() {
         onDrop={(e) => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
       >
         <p className="text-zinc-400 text-sm">Drop a Coros CSV here, or click to select</p>
-        <p className="text-zinc-600 text-xs mt-1">Format: [ActivityType][YYYYMMDD][HHMMSS].csv</p>
+        <p className="text-zinc-600 text-xs mt-1">Unrecognized files are logged as General Cardio</p>
         <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
       </div>
 
@@ -88,9 +125,12 @@ export default function UploadModal() {
       {pending && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-4">
           <div>
-            <div className="font-medium text-sm">{pending.corosType}</div>
+            <div className="font-medium text-sm">
+              {pending.corosType === 'GeneralCardio' ? 'General Cardio' : pending.corosType}
+            </div>
             <div className="text-xs text-zinc-500 mt-0.5">
-              {pending.session.date} · {Math.round(pending.session.durationMinutes)}min
+              {pending.session.date}
+              {pending.session.durationMinutes > 0 && ` · ${Math.round(pending.session.durationMinutes)}min`}
               {pending.session.elevationGainM > 0 && ` · ${Math.round(pending.session.elevationGainM * 3.281)}ft gain`}
               {pending.session.avgHR && ` · avg HR ${pending.session.avgHR}bpm`}
             </div>
@@ -139,14 +179,14 @@ export default function UploadModal() {
             </div>
           )}
 
-          {pending.annotationFields.includes('inclineUsed') && (pending.session.elevationGainM ?? 0) > 0 && (
+          {pending.annotationFields.includes('weightsUsed') && (
             <div>
-              <label className="block text-xs text-zinc-400 mb-2">Incline used?</label>
+              <label className="block text-xs text-zinc-400 mb-2">Were weights used? (e.g. weighted vest, pack)</label>
               <div className="flex gap-2">
                 {['true', 'false'].map((v) => (
-                  <button key={v} onClick={() => setAnnotation((a) => ({ ...a, inclineUsed: v }))}
+                  <button key={v} onClick={() => setAnnotation((a) => ({ ...a, weightsUsed: v }))}
                     className={`px-3 py-1.5 rounded text-sm border transition-colors ${
-                      annotation.inclineUsed === v ? 'bg-zinc-600 border-zinc-500' : 'bg-zinc-900 border-zinc-700 text-zinc-400'
+                      annotation.weightsUsed === v ? 'bg-zinc-600 border-zinc-500' : 'bg-zinc-900 border-zinc-700 text-zinc-400'
                     }`}
                   >
                     {v === 'true' ? 'Yes' : 'No'}

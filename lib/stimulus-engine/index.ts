@@ -67,8 +67,8 @@ function getCardioStimulus(session: ParsedCorosSession): StimulusMap {
     if (m.condition.includes('elevationGainPerHour >= 500')) return elevPerHour >= 500;
     if (m.condition.includes("packWeight === 'none'")) return annotation.packWeight === 'none';
     if (m.condition.includes("packWeight !== 'none'")) return annotation.packWeight !== 'none' && annotation.packWeight !== undefined;
-    if (m.condition.includes('inclineUsed === false')) return annotation.inclineUsed === false;
-    if (m.condition.includes('inclineUsed === true')) return annotation.inclineUsed === true;
+    if (m.condition.includes('weightsUsed === false')) return annotation.weightsUsed === false;
+    if (m.condition.includes('weightsUsed === true')) return annotation.weightsUsed === true;
     return true;
   });
 

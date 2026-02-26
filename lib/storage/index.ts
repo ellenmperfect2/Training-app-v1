@@ -299,7 +299,7 @@ export interface ParsedCorosSession {
   annotation: {
     packWeight?: string;
     terrain?: string;
-    inclineUsed?: boolean;
+    weightsUsed?: boolean;
     perceivedEffort?: number;
     notes?: string;
   };

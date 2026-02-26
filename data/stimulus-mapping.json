@@ -33,7 +33,7 @@
     {
       "id": "indoor-run-flat",
       "corosType": "IndoorRun",
-      "condition": "inclineUsed === false",
+      "condition": "weightsUsed === false",
       "label": "Indoor run — flat",
       "stimulusWeights": {
         "posteriorChain": 0.2,
@@ -46,10 +46,10 @@
       }
     },
     {
-      "id": "indoor-run-incline",
+      "id": "indoor-run-weighted",
       "corosType": "IndoorRun",
-      "condition": "inclineUsed === true",
-      "label": "Indoor run — incline",
+      "condition": "weightsUsed === true",
+      "label": "Indoor run — weighted",
       "stimulusWeights": {
         "posteriorChain": 0.5,
         "quadDominant": 0.6,
@@ -147,6 +147,21 @@
         "push": 0.0,
         "pull": 0.0,
         "core": 0.0,
+        "loadedCarry": 0.0,
+        "forearmsGrip": 0.0
+      }
+    },
+    {
+      "id": "general-cardio",
+      "corosType": "GeneralCardio",
+      "condition": null,
+      "label": "General Cardio",
+      "stimulusWeights": {
+        "posteriorChain": 0.3,
+        "quadDominant": 0.3,
+        "push": 0.0,
+        "pull": 0.0,
+        "core": 0.2,
         "loadedCarry": 0.0,
         "forearmsGrip": 0.0
       }

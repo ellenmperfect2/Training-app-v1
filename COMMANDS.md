@@ -4,6 +4,26 @@ Claude Code must read this file at the start of every session before acting on a
 
 ---
 
+## STANDING RULES
+These rules apply to every command type without exception. They do not need to be restated in a prompt to be in effect.
+
+### CLAUDE.md UPDATE RULE
+After any change that affects file ownership, localStorage structure, data shapes, command type scope, or system architecture: update CLAUDE.md to reflect the change before confirming completion. The updated file must be named:
+`CLAUDE — v[N] — [brief summary of what changed] — [YYYY-MM-DD]`
+
+### SKILL PROMPT UPDATE RULE
+After any change that affects how prompts should be written to this app, adds new decisioning rules, changes architectural constraints, or adds context an LLM would need to make safe changes: produce an updated version of the Summit Coach skill prompt with the relevant sections revised and a new version number and date. Output the full updated skill prompt as a code block so it can be copied into the Claude.ai project. The file must be named:
+`Summit Coach Skill Prompt — v[N] — [brief summary of what changed] — [YYYY-MM-DD]`
+
+### FILE NAMING RULE
+All files produced or updated by Claude Code must follow this naming convention:
+`[Document name] — v[N] — [brief summary of what changed] — [YYYY-MM-DD]`
+First-time files with no prior version omit the version:
+`[Document name] — [brief summary] — [YYYY-MM-DD]`
+Version number increments with every substantive change. Summary should be 3–6 words describing what changed.
+
+---
+
 ## AESTHETIC UPDATE
 - **Scope:** CSS, layout, colors, typography, spacing, component styling
 - **Never touch:** any data files, parsers, logic, prompt templates, recommendation engine, recovery engine, training config, objective library

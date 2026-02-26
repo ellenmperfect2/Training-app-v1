@@ -55,7 +55,7 @@ export default function RecoveryIndicator({ detail, checkIn, baseline }: Props) 
           </div>
         )}
         <div className="text-zinc-400">
-          Sleep: <span className="text-zinc-200">{checkIn.sleep.quality} · {checkIn.sleep.hours}hrs</span>
+          Sleep: <span className="text-zinc-200">{checkIn.sleep.quality} · {formatSleepHours(checkIn.sleep.hours)}</span>
         </div>
         <div className="text-zinc-400">
           Legs <span className="text-zinc-200">{checkIn.subjectiveFeel.legs}/5</span>
@@ -75,6 +75,12 @@ export default function RecoveryIndicator({ detail, checkIn, baseline }: Props) 
       </div>
     </div>
   );
+}
+
+function formatSleepHours(hours: number): string {
+  const h = Math.floor(hours);
+  const m = Math.round((hours - h) * 60);
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
 function getRecoveryActionNote(classification: string): string {
