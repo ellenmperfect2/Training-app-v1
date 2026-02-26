@@ -211,3 +211,11 @@ Version number increments with every substantive change. Summary should be 3–6
 - **Never touch:** stored check-in data, personal baseline values, recommendation engine logic, training config, objective library
 - **Process:** explain what rule is changing and what behavioral difference it will create in daily recovery classification. Confirm before writing.
 - **Triggers:** "change the recovery rules", "update HRV thresholds", "adjust sleep classification", "recovery logic"
+
+---
+
+## ADD OBJECTIVE MATCHER
+- **Scope:** `/lib/objective-matcher.js` only
+- **Read from:** `activeObjectives` localStorage, `objective-library.json`, `exercise-library.json` (muscle group lookups), `workoutLog` (read only at call time — no writes)
+- **Never touch:** `/lib/recommendation`, `/lib/recovery`, `/lib/fit-parser.ts`, `/lib/zones.ts`, `workoutLog` shape, `objective-library.json` (read only), any other localStorage key
+- **Triggers:** "objective matcher", "contributing objectives", "which objectives did this session contribute to", "update objective matcher logic"

@@ -1,5 +1,5 @@
 # Summit Dashboard — CLAUDE.md
-**v9 — added MANAGE BENCHMARK LOG command type, benchmark checklist UI and route — 2026-02-26**
+**v10 — added objective-matcher and ADD OBJECTIVE MATCHER command — 2026-02-26**
 
 Claude Code reads this file at the start of every session. It reflects the current architectural state of the app. Update this file (incrementing v[N]) after any change to file ownership, localStorage structure, data shapes, command types, or system architecture.
 
@@ -30,6 +30,7 @@ Claude Code reads this file at the start of every session. It reflects the curre
 | Stimulus engine | `lib/stimulus-engine/index.ts` | PROCESS DAILY DATA |
 | Parsers | `lib/parsers/` | PROCESS DAILY DATA |
 | Prompt templates | `lib/prompt-templates/index.ts` | UPDATE PROMPT LOGIC |
+| Objective matcher | `lib/objective-matcher.js` | ADD OBJECTIVE MATCHER |
 | Storage types + helpers | `lib/storage/index.ts` | Any command adding/changing data shapes |
 | Zone system | `lib/zones.ts`, `lib/storage/index.ts` (UserZones), `components/zones/`, `app/zones/` | MANAGE ZONES |
 | FIT parser | `lib/fit-parser.ts` | PROCESS DAILY DATA |
