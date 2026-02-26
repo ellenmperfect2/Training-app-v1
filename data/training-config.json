@@ -1,0 +1,19 @@
+{
+  "generated-date": "default",
+  "expires-date": "never",
+  "fatigue-state": "low",
+  "cardio-priority": "build",
+  "cardio-zone2-minimum-hours": 4,
+  "strength-priority": "build",
+  "posterior-chain-emphasis": "medium",
+  "single-leg-emphasis": "medium",
+  "push-emphasis": "medium",
+  "pull-emphasis": "medium",
+  "core-emphasis": "medium",
+  "climbing-priority": "build",
+  "climbing-frequency-max": 3,
+  "conditioning-frequency": 2,
+  "loaded-carry-sessions": 1,
+  "objective-proximity-flag": "normal",
+  "override-reason": "Default baseline config. Run weekly analysis to get personalized recommendations."
+}

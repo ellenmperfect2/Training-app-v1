@@ -1,0 +1,62 @@
+{
+  "schema-version": "1.0",
+  "fields": {
+    "generated-date": { "type": "date", "format": "YYYY-MM-DD", "required": true },
+    "expires-date": { "type": "date", "format": "YYYY-MM-DD", "required": true },
+    "fatigue-state": {
+      "type": "enum",
+      "values": ["low", "moderate", "high", "rest"],
+      "required": true
+    },
+    "cardio-priority": {
+      "type": "enum",
+      "values": ["maintain", "build", "peak", "taper"],
+      "required": true
+    },
+    "cardio-zone2-minimum-hours": { "type": "number", "min": 0, "max": 20, "required": true },
+    "strength-priority": {
+      "type": "enum",
+      "values": ["maintain", "build", "peak", "deload"],
+      "required": true
+    },
+    "posterior-chain-emphasis": {
+      "type": "enum",
+      "values": ["low", "medium", "high"],
+      "required": true
+    },
+    "single-leg-emphasis": {
+      "type": "enum",
+      "values": ["low", "medium", "high"],
+      "required": true
+    },
+    "push-emphasis": {
+      "type": "enum",
+      "values": ["low", "medium", "high"],
+      "required": true
+    },
+    "pull-emphasis": {
+      "type": "enum",
+      "values": ["low", "medium", "high"],
+      "required": true
+    },
+    "core-emphasis": {
+      "type": "enum",
+      "values": ["low", "medium", "high"],
+      "required": true
+    },
+    "climbing-priority": {
+      "type": "enum",
+      "values": ["maintain", "build", "peak", "rest"],
+      "required": true
+    },
+    "climbing-frequency-max": { "type": "number", "min": 0, "max": 7, "required": true },
+    "conditioning-frequency": { "type": "number", "min": 0, "max": 7, "required": true },
+    "loaded-carry-sessions": { "type": "number", "min": 0, "max": 7, "required": true },
+    "objective-proximity-flag": {
+      "type": "enum",
+      "values": ["normal", "approaching", "taper", "peak-week"],
+      "required": true
+    },
+    "override-reason": { "type": "string", "required": true }
+  }
+}

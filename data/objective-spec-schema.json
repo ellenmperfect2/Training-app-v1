@@ -1,0 +1,111 @@
+{
+  "schema-version": "1.0",
+  "required-elements": {
+    "meta": {
+      "id": { "type": "string", "format": "kebab-case", "required": true },
+      "n": { "type": "string", "required": true },
+      "type": { "type": "string", "required": true },
+      "version": { "type": "string", "required": true },
+      "generated-date": { "type": "date", "format": "YYYY-MM-DD", "required": true }
+    },
+    "profile": {
+      "duration-days": { "type": "number", "required": true },
+      "daily-elevation-gain-ft": { "type": "number", "required": true },
+      "daily-mileage": { "type": "number", "required": true },
+      "max-altitude-ft": { "type": "number", "required": true },
+      "pack-weight": {
+        "type": "enum",
+        "values": ["none", "light", "moderate", "heavy"],
+        "required": true
+      },
+      "activity-type": { "type": "string", "required": true }
+    },
+    "benchmarks": {
+      "aerobic-capacity": {
+        "sustained-output-hours": { "type": "number", "required": true },
+        "zone2-percentage": { "type": "number", "required": true },
+        "loaded-aerobic-test": {
+          "description": { "type": "string", "required": true },
+          "pack-weight": { "type": "string", "required": true },
+          "duration-hours": { "type": "number", "required": true },
+          "elevation-gain-ft": { "type": "number", "required": true },
+          "passing-standard": { "type": "string", "required": true }
+        }
+      },
+      "muscular-endurance": {
+        "loaded-carry-test": {
+          "description": { "type": "string", "required": true },
+          "pack-weight": { "type": "string", "required": true },
+          "elevation-gain-ft": { "type": "number", "required": true },
+          "duration-hours": { "type": "number", "required": true },
+          "passing-standard": { "type": "string", "required": true },
+          "miss-means": { "type": "string", "required": true }
+        },
+        "descent-durability-test": {
+          "description": { "type": "string", "required": true },
+          "elevation-loss-ft": { "type": "number", "required": true },
+          "pack-weight": { "type": "string", "required": true },
+          "passing-standard": { "type": "string", "required": true },
+          "miss-means": { "type": "string", "required": true }
+        },
+        "back-to-back-test": {
+          "day1-description": { "type": "string", "required": true },
+          "day2-description": { "type": "string", "required": true },
+          "passing-standard": { "type": "string", "required": true }
+        }
+      },
+      "cumulative-fatigue": {
+        "simulation-block": {
+          "day1": { "type": "string", "required": true },
+          "day2": { "type": "string", "required": true },
+          "day3": { "type": "string", "required": true },
+          "passing-standard": { "type": "string", "required": true }
+        }
+      },
+      "readiness-tiers": {
+        "ready": { "type": "string", "required": true },
+        "borderline": { "type": "string", "required": true },
+        "not-ready": { "type": "string", "required": true }
+      }
+    },
+    "assessment-workouts": {
+      "assessment": {
+        "id": { "type": "string", "format": "kebab-case", "required": true },
+        "n": { "type": "string", "required": true },
+        "maps-to-benchmark": {
+          "type": "string",
+          "format": "dot.notation",
+          "valid-paths": [
+            "aerobic-capacity.loaded-aerobic-test",
+            "muscular-endurance.loaded-carry-test",
+            "muscular-endurance.descent-durability-test",
+            "muscular-endurance.back-to-back-test",
+            "cumulative-fatigue.simulation-block"
+          ],
+          "required": true
+        },
+        "terrain": { "type": "string", "required": true },
+        "equipment": { "type": "string", "required": true },
+        "workout": { "type": "string", "required": true },
+        "track": { "type": "string", "required": true },
+        "passing-standard": { "type": "string", "required": true },
+        "miss-means": { "type": "string", "required": true }
+      },
+      "min-assessments": 4,
+      "max-assessments": 6
+    },
+    "training-plan-logic": {
+      "primary-stimulus": { "type": "string", "required": true },
+      "secondary-stimulus": { "type": "string", "required": true },
+      "tertiary-stimulus": { "type": "string", "required": true },
+      "reduce-stimulus": { "type": "string", "required": true },
+      "key-workout-types": {
+        "type": "array",
+        "items": "string",
+        "required": true
+      },
+      "taper-weeks": { "type": "number", "required": true },
+      "simulation-block-weeks-out": { "type": "number", "required": true }
+    }
+  }
+}

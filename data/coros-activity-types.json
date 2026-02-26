@@ -1,0 +1,139 @@
+{
+  "activityTypes": [
+    {
+      "corosType": "IndoorRun",
+      "domain": "cardio",
+      "category": "Aerobic",
+      "subcategory": "Endurance",
+      "annotationFields": ["inclineUsed", "perceivedEffort", "notes"]
+    },
+    {
+      "corosType": "OutdoorRun",
+      "domain": "cardio",
+      "category": "Aerobic",
+      "subcategory": "Endurance",
+      "annotationFields": ["terrain", "perceivedEffort", "notes"]
+    },
+    {
+      "corosType": "IndoorCycle",
+      "domain": "cardio",
+      "category": "Aerobic",
+      "subcategory": "Endurance",
+      "annotationFields": ["perceivedEffort", "notes"]
+    },
+    {
+      "corosType": "OutdoorCycle",
+      "domain": "cardio",
+      "category": "Aerobic",
+      "subcategory": "Endurance",
+      "annotationFields": ["perceivedEffort", "notes"]
+    },
+    {
+      "corosType": "Hike",
+      "domain": "cardio",
+      "category": "Aerobic",
+      "subcategory": "Loaded Carry candidate",
+      "annotationFields": ["packWeight", "terrain", "perceivedEffort", "notes"]
+    },
+    {
+      "corosType": "MountainHike",
+      "domain": "cardio",
+      "category": "Aerobic",
+      "subcategory": "Loaded Carry candidate",
+      "annotationFields": ["packWeight", "terrain", "perceivedEffort", "notes"]
+    },
+    {
+      "corosType": "Skiing",
+      "domain": "cardio",
+      "category": "Aerobic",
+      "subcategory": "Sport Specific",
+      "annotationFields": ["perceivedEffort", "notes"]
+    },
+    {
+      "corosType": "BackcountrySkiing",
+      "domain": "cardio",
+      "category": "Aerobic",
+      "subcategory": "Sport Specific",
+      "annotationFields": ["packWeight", "terrain", "perceivedEffort", "notes"]
+    },
+    {
+      "corosType": "Snowshoeing",
+      "domain": "cardio",
+      "category": "Aerobic",
+      "subcategory": "Recovery",
+      "annotationFields": ["packWeight", "perceivedEffort", "notes"]
+    },
+    {
+      "corosType": "Walk",
+      "domain": "cardio",
+      "category": "Aerobic",
+      "subcategory": "Recovery",
+      "annotationFields": ["notes"]
+    },
+    {
+      "corosType": "IndoorStrength",
+      "domain": "strength",
+      "category": "Strength",
+      "subcategory": "Suggest native logger",
+      "annotationFields": ["notes"],
+      "suggestNativeLogger": true
+    },
+    {
+      "corosType": "Yoga",
+      "domain": "cardio",
+      "category": "Recovery",
+      "subcategory": "Mobility",
+      "annotationFields": ["notes"]
+    },
+    {
+      "corosType": "Swimming",
+      "domain": "cardio",
+      "category": "Aerobic",
+      "subcategory": "Cross Training",
+      "annotationFields": ["perceivedEffort", "notes"]
+    }
+  ],
+  "annotationFieldDefinitions": {
+    "packWeight": {
+      "label": "Pack weight",
+      "type": "enum",
+      "values": [
+        { "value": "none", "label": "None" },
+        { "value": "light", "label": "Light (15–25 lbs)" },
+        { "value": "moderate", "label": "Moderate (25–40 lbs)" },
+        { "value": "heavy", "label": "Heavy (40+ lbs)" }
+      ],
+      "required": true
+    },
+    "terrain": {
+      "label": "Terrain",
+      "type": "enum",
+      "values": [
+        { "value": "road", "label": "Road" },
+        { "value": "trail", "label": "Trail" },
+        { "value": "mountain", "label": "Mountain" },
+        { "value": "off-trail", "label": "Off-trail" },
+        { "value": "snow", "label": "Snow" }
+      ],
+      "required": false
+    },
+    "inclineUsed": {
+      "label": "Incline used?",
+      "type": "boolean",
+      "showIf": "elevationGain > 0",
+      "required": false
+    },
+    "perceivedEffort": {
+      "label": "Perceived effort",
+      "type": "number",
+      "min": 1,
+      "max": 10,
+      "required": false
+    },
+    "notes": {
+      "label": "Notes",
+      "type": "string",
+      "required": false
+    }
+  }
+}
