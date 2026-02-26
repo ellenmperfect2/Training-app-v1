@@ -71,9 +71,10 @@ function getFocus(e: Entry): string {
   if (e.type === 'cardio') {
     const s = e.session;
     const loaded = s.packWeight && s.packWeight !== 'none';
-    const isHike = s.activityType.toLowerCase().includes('hike');
+    const actType = s.activityType ?? '';
+    const isHike = actType.toLowerCase().includes('hike');
     if (loaded && isHike) return 'Loaded hike';
-    return camelToWords(s.activityType);
+    return camelToWords(actType) || 'Cardio';
   }
   if (e.type === 'strength') {
     const t = e.session.templateUsed
