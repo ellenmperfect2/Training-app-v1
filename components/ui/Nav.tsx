@@ -10,6 +10,7 @@ const links = [
   { href: '/log/conditioning', label: 'Conditioning' },
   { href: '/upload', label: 'Cardio' },
   { href: '/objectives', label: 'Objectives' },
+  { href: '/preferences', label: 'Preferences' },
 ];
 
 export default function Nav() {

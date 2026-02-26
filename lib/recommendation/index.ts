@@ -7,7 +7,9 @@ import type {
   RecoveryClassification,
   WorkoutLog,
   ActivatedObjective,
+  UserPreferences,
 } from '../storage';
+import { DEFAULT_USER_PREFERENCES } from '../storage';
 import type { ClassificationDetail } from '../recovery';
 import { getMandatoryRestGroups } from '../stimulus-engine';
 import type { StimulusMap } from '../storage';
@@ -33,6 +35,23 @@ export interface ExerciseRecommendation {
   reps: number;
   note?: string;
 }
+
+// Exercises suppressed by each limitation type
+const LIMITATION_EXERCISES: Record<string, string[]> = {
+  knee: ['barbell-squat', 'barbell-lunge', 'single-leg-rdl'],
+  shoulder: ['bench-press', 'barbell-shoulder-press', 'pushup', 'pullup', 'inverted-row', 'cable-lat-pulldown', 'cable-row'],
+  ankle: ['barbell-lunge', 'single-leg-rdl'],
+  back: ['deadlift', 'barbell-squat', 'barbell-lunge'],
+  forearm: ['pullup', 'cable-lat-pulldown', 'hanging-leg-lifts', 'deadlift'],
+  other: [],
+};
+
+// Exercises suppressed by recommendation type suppression
+const SUPPRESSION_TYPE_EXERCISES: Record<string, string[]> = {
+  'heavy-lower-body': ['barbell-squat', 'deadlift', 'barbell-lunge', 'single-leg-rdl'],
+  'high-impact-cardio': [],
+  'climbing': [],
+};
 
 const DEFAULT_CONFIG: TrainingConfig = {
   'generated-date': 'default',
@@ -65,8 +84,10 @@ export function buildRecommendation(params: {
     notes: string;
   } | null;
   recoveryDetail?: ClassificationDetail | null;
+  userPreferences?: UserPreferences | null;
 }): RecommendationCard {
   const { config: rawConfig, recovery, log, activeObjectives, today, planWeek, recoveryDetail } = params;
+  const prefs = params.userPreferences ?? DEFAULT_USER_PREFERENCES;
 
   // Step 2: Resolve config
   const config = rawConfig ?? DEFAULT_CONFIG;
@@ -85,6 +106,9 @@ export function buildRecommendation(params: {
   const forearmsRest = mandatoryRest.includes('forearmsGrip');
   const posteriorRest = mandatoryRest.includes('posteriorChain');
 
+  // Compute preference-based exercise suppression
+  const suppressedExerciseIds = computeSuppressedExercises(prefs);
+
   // Step 5–6: Build recommendation based on recovery + proximity
   let card: RecommendationCard;
 
@@ -94,7 +118,7 @@ export function buildRecommendation(params: {
     card = buildFatiguedDay(finalRecovery);
   } else {
     // full or moderate
-    card = buildTrainingDay(config, finalRecovery, planWeek, forearmsRest, posteriorRest);
+    card = buildTrainingDay(config, finalRecovery, planWeek, forearmsRest, posteriorRest, suppressedExerciseIds);
   }
 
   // Step 6: Proximity modifier
@@ -110,16 +134,29 @@ export function buildRecommendation(params: {
   }
 
   // Override whyNote with data-specific version
-  card.whyNote = buildDataWhyNote(finalRecovery, recoveryDetail, config, activeObjectives, usingDefault);
+  card.whyNote = buildDataWhyNote(finalRecovery, recoveryDetail, config, activeObjectives, prefs, usingDefault);
 
   // Override configInfluenceNote
-  if (usingDefault) {
-    card.configInfluenceNote = 'No active config — using baseline logic.';
-  } else {
-    card.configInfluenceNote = buildConfigNote(config, finalRecovery);
-  }
+  card.configInfluenceNote = buildConfigNote(config, finalRecovery, usingDefault, prefs);
 
   return card;
+}
+
+// ── Preference helpers ─────────────────────────────────────────────────────
+
+function computeSuppressedExercises(prefs: UserPreferences): string[] {
+  const ids = new Set<string>();
+  for (const lim of prefs.activeLimitations) {
+    for (const id of (LIMITATION_EXERCISES[lim] ?? [])) {
+      ids.add(id);
+    }
+  }
+  for (const type of prefs.suppressedRecommendationTypes) {
+    for (const id of (SUPPRESSION_TYPE_EXERCISES[type] ?? [])) {
+      ids.add(id);
+    }
+  }
+  return Array.from(ids);
 }
 
 // ── Recovery resolution ────────────────────────────────────────────────────
@@ -128,10 +165,6 @@ function resolveRecentRecovery(
   log: WorkoutLog,
   today: string
 ): RecoveryClassification | null {
-  // This function reads pre-computed classification stored in checkInLog.
-  // The actual classification runs at check-in save time in /lib/recovery.
-  // Here we look for it in the workout log by inspecting dates.
-  // The UI layer will pass the actual value; this is a fallback resolver.
   return null;
 }
 
@@ -142,12 +175,12 @@ function buildDataWhyNote(
   recoveryDetail: ClassificationDetail | null | undefined,
   config: TrainingConfig,
   activeObjectives: ActivatedObjective[],
+  prefs: UserPreferences,
   usingDefault: boolean
 ): string {
   const parts: string[] = [];
 
   if (recoveryDetail) {
-    // Biometric signals
     const hrvPct = recoveryDetail.hrvPct;
     const rhrDiff = recoveryDetail.rhrDiff;
 
@@ -169,22 +202,29 @@ function buildDataWhyNote(
       }
     }
 
-    // Flag interactions take priority if present
     if (recoveryDetail.flagInteractions.length > 0) {
       parts.push(recoveryDetail.flagInteractions[0]);
     }
   }
 
-  // Active objective context
+  // Active objective context + objective notes
   if (activeObjectives.length > 0) {
     const sorted = [...activeObjectives].sort((a, b) => a.weeksRemaining - b.weeksRemaining);
     const nearest = sorted[0];
-    parts.push(
-      `${nearest.name} is ${nearest.weeksRemaining} week${nearest.weeksRemaining === 1 ? '' : 's'} out — ${nearest.currentPhase} phase.`
-    );
+    let objPart = `${nearest.name} is ${nearest.weeksRemaining} week${nearest.weeksRemaining === 1 ? '' : 's'} out — ${nearest.currentPhase} phase.`;
+    const note = prefs.objectiveNotes[nearest.id]?.trim();
+    if (note) {
+      objPart += ` Note: ${note}`;
+    }
+    parts.push(objPart);
   }
 
-  // Fallback if no specific signals
+  // Active limitations
+  if (prefs.activeLimitations.length > 0) {
+    parts.push(`Limitations active (${prefs.activeLimitations.join(', ')}) — affected exercises suppressed.`);
+  }
+
+  // Fallback
   if (parts.length === 0) {
     if (usingDefault) {
       return 'No check-in data available — recommendation based on default settings. Log a morning check-in for personalised context.';
@@ -197,28 +237,53 @@ function buildDataWhyNote(
   return parts.slice(0, 3).join(' ');
 }
 
-function buildConfigNote(config: TrainingConfig, recovery: RecoveryClassification): string | null {
+function buildConfigNote(
+  config: TrainingConfig,
+  recovery: RecoveryClassification,
+  usingDefault: boolean,
+  prefs: UserPreferences
+): string | null {
+  const notes: string[] = [];
+
   if (recovery === 'rest') {
-    return 'Recovery takes priority — config settings are not influencing today\'s recommendation.';
+    notes.push('Recovery takes priority — config settings are not influencing today\'s recommendation.');
+  } else if (usingDefault) {
+    notes.push('No active config — using baseline logic.');
+  } else {
+    const emphases: string[] = [];
+    if (config['posterior-chain-emphasis'] === 'high') emphases.push('posterior chain emphasis');
+    if (config['pull-emphasis'] === 'high') emphases.push('pull emphasis');
+    if (config['push-emphasis'] === 'high') emphases.push('push emphasis');
+    if (config['core-emphasis'] === 'high') emphases.push('core emphasis');
+    if (config['single-leg-emphasis'] === 'high') emphases.push('single-leg emphasis');
+    if (config['fatigue-state'] === 'high') emphases.push('fatigue state flagged as high');
+
+    if (emphases.length > 0) {
+      notes.push(`Config: ${emphases.slice(0, 2).join(' and ')}.`);
+    } else if (config['cardio-priority'] !== 'build') {
+      notes.push(`Config: cardio priority is ${config['cardio-priority']}.`);
+    } else {
+      notes.push('Active config — emphasis settings at medium defaults.');
+    }
   }
 
-  const emphases: string[] = [];
-  if (config['posterior-chain-emphasis'] === 'high') emphases.push('posterior chain emphasis');
-  if (config['pull-emphasis'] === 'high') emphases.push('pull emphasis');
-  if (config['push-emphasis'] === 'high') emphases.push('push emphasis');
-  if (config['core-emphasis'] === 'high') emphases.push('core emphasis');
-  if (config['single-leg-emphasis'] === 'high') emphases.push('single-leg emphasis');
-  if (config['fatigue-state'] === 'high') emphases.push('fatigue state flagged as high');
-
-  if (emphases.length > 0) {
-    return `Config: ${emphases.slice(0, 2).join(' and ')}.`;
+  // HR calibration offset
+  if (prefs.hrCalibrationOffset !== 0) {
+    const sign = prefs.hrCalibrationOffset > 0 ? '+' : '';
+    notes.push(`HR calibration offset: ${sign}${prefs.hrCalibrationOffset} bpm.`);
   }
 
-  if (config['cardio-priority'] !== 'build') {
-    return `Config: cardio priority is ${config['cardio-priority']}.`;
+  // Suppressed recommendation types
+  if (prefs.suppressedRecommendationTypes.length > 0) {
+    notes.push(`Suppressed: ${prefs.suppressedRecommendationTypes.join(', ')}.`);
   }
 
-  return 'Active config is shaping this block — emphasis settings are at medium defaults.';
+  // Non-default methodology
+  if (prefs.preferredMethodology !== 'uphill-athlete') {
+    notes.push(`Methodology: ${prefs.preferredMethodology}.`);
+  }
+
+  return notes.length > 0 ? notes.join(' ') : null;
 }
 
 // ── Day builders ───────────────────────────────────────────────────────────
@@ -268,12 +333,13 @@ function buildTrainingDay(
   recovery: RecoveryClassification,
   planWeek: { keyWorkouts: string[]; notes: string } | null | undefined,
   forearmsRest: boolean,
-  posteriorRest: boolean
+  posteriorRest: boolean,
+  suppressedExerciseIds: string[]
 ): RecommendationCard {
   const isModerate = recovery === 'moderate';
 
   const workoutType = selectWorkoutType(config, forearmsRest, posteriorRest);
-  const exercises = buildExerciseList(workoutType, config, isModerate, forearmsRest, posteriorRest);
+  const exercises = buildExerciseList(workoutType, config, isModerate, forearmsRest, posteriorRest, suppressedExerciseIds);
 
   const modificationFlag = isModerate
     ? 'Volume reduced ~20% and intensity downgraded one level — moderate recovery.'
@@ -281,7 +347,7 @@ function buildTrainingDay(
 
   const parametersStr = exercises.length > 0
     ? exercises.map((e) => `${e.name} ${e.sets}×${e.reps}${e.note ? ` (${e.note})` : ''}`).join(' · ')
-    : 'All primary muscle groups at mandatory rest — light movement only';
+    : 'All primary muscle groups at mandatory rest or suppressed — light movement only';
 
   return {
     title: workoutType.label,
@@ -315,7 +381,6 @@ function selectWorkoutType(
   forearmsRest: boolean,
   posteriorRest: boolean
 ): WorkoutType {
-  // Priority: posterior chain > single leg > pull > push > core > quad
   if (config['posterior-chain-emphasis'] === 'high' && !posteriorRest) {
     return {
       id: 'lower-posterior',
@@ -361,7 +426,6 @@ function selectWorkoutType(
     };
   }
 
-  // Default: full body
   return {
     id: 'full-body',
     label: 'Full Body',
@@ -375,7 +439,8 @@ function buildExerciseList(
   config: TrainingConfig,
   isModerate: boolean,
   forearmsRest: boolean,
-  posteriorRest: boolean
+  posteriorRest: boolean,
+  suppressedExerciseIds: string[]
 ): ExerciseRecommendation[] {
   const results: ExerciseRecommendation[] = [];
   const exercises = exerciseLibrary.exercises;
@@ -384,6 +449,8 @@ function buildExerciseList(
     // Skip exercises based on mandatory rest
     if (forearmsRest && (id === 'pullup' || id === 'cable-lat-pulldown' || id === 'hanging-leg-lifts' || id === 'deadlift')) continue;
     if (posteriorRest && (id === 'deadlift' || id === 'single-leg-rdl')) continue;
+    // Skip exercises suppressed by user preferences / limitations
+    if (suppressedExerciseIds.includes(id)) continue;
 
     const def = exercises.find((e) => e.id === id);
     if (!def) continue;
@@ -391,12 +458,10 @@ function buildExerciseList(
     let sets = def.defaults.sets;
     let reps = def.defaults.reps;
 
-    // Moderate: reduce volume ~20%
     if (isModerate) {
       sets = Math.max(1, Math.round(sets * 0.8));
     }
 
-    // Config emphasis: increase sets for high-emphasis groups
     const emphasis = getEmphasisForExercise(def, config);
     if (emphasis === 'high' && !isModerate) sets = sets + 1;
     if (emphasis === 'low') sets = Math.max(1, sets - 1);

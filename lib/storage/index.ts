@@ -13,6 +13,7 @@ export const STORAGE_KEYS = {
   PROGRESSION_HISTORY: 'progressionHistory',
   ACTIVE_TRAINING_CONFIG: 'activeTrainingConfig',
   CONFIG_HISTORY: 'configHistory',
+  USER_PREFERENCES: 'userPreferences',
 } as const;
 
 function isBrowser(): boolean {
@@ -216,6 +217,36 @@ export function setActiveTrainingConfig(config: TrainingConfig): void {
 
 export function getConfigHistory(): TrainingConfig[] {
   return read<TrainingConfig[]>(STORAGE_KEYS.CONFIG_HISTORY, []);
+}
+
+// ── User Preferences ───────────────────────────────────────────────────────
+
+export type LimitationType = 'knee' | 'shoulder' | 'ankle' | 'back' | 'forearm' | 'other';
+export type MethodologyType = 'uphill-athlete' | 'general-endurance' | 'balanced';
+export type SuppressedRecommendationType = 'high-impact-cardio' | 'heavy-lower-body' | 'climbing';
+
+export interface UserPreferences {
+  hrCalibrationOffset: number;
+  activeLimitations: LimitationType[];
+  preferredMethodology: MethodologyType;
+  objectiveNotes: Record<string, string>;
+  suppressedRecommendationTypes: SuppressedRecommendationType[];
+}
+
+export const DEFAULT_USER_PREFERENCES: UserPreferences = {
+  hrCalibrationOffset: 0,
+  activeLimitations: [],
+  preferredMethodology: 'uphill-athlete',
+  objectiveNotes: {},
+  suppressedRecommendationTypes: [],
+};
+
+export function getUserPreferences(): UserPreferences {
+  return read<UserPreferences>(STORAGE_KEYS.USER_PREFERENCES, DEFAULT_USER_PREFERENCES);
+}
+
+export function setUserPreferences(prefs: UserPreferences): void {
+  write(STORAGE_KEYS.USER_PREFERENCES, prefs);
 }
 
 // ── Types ──────────────────────────────────────────────────────────────────

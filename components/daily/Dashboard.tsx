@@ -13,6 +13,7 @@ import {
   getPersonalBaseline,
   getActiveTrainingConfig,
   getArchivedObjectives,
+  getUserPreferences,
 } from '@/lib/storage';
 import { classifyRecovery } from '@/lib/recovery';
 import { buildRecommendation } from '@/lib/recommendation';
@@ -67,6 +68,7 @@ export default function Dashboard() {
     }
 
     // Build recommendation
+    const userPreferences = getUserPreferences();
     const rec = buildRecommendation({
       config: resolvedConfig,
       recovery: detail?.classification ?? null,
@@ -75,6 +77,7 @@ export default function Dashboard() {
       activeObjectives,
       today,
       planWeek: null,
+      userPreferences,
     });
     setRecommendation(rec);
 
