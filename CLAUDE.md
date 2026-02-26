@@ -1,5 +1,5 @@
 # Summit Dashboard — CLAUDE.md
-**v8 — added MANAGE CHECKIN LOG command type, check-in history screen and route — 2026-02-26**
+**v9 — added MANAGE BENCHMARK LOG command type, benchmark checklist UI and route — 2026-02-26**
 
 Claude Code reads this file at the start of every session. It reflects the current architectural state of the app. Update this file (incrementing v[N]) after any change to file ownership, localStorage structure, data shapes, command types, or system architecture.
 
@@ -36,6 +36,7 @@ Claude Code reads this file at the start of every session. It reflects the curre
 | User preferences | `lib/storage/index.ts` (UserPreferences), `components/preferences/`, `app/preferences/` | MANAGE USER PREFERENCES |
 | Settings screen | `components/settings/`, `app/settings/` | MANAGE SETTINGS |
 | Check-in history | `components/checkin/CheckInHistory.tsx`, `app/checkin/history/` | MANAGE CHECKIN LOG |
+| Benchmark checklist | `components/benchmarks/BenchmarkChecklist.tsx`, `app/benchmarks/` | MANAGE BENCHMARK LOG |
 | UI components | `components/` | AESTHETIC UPDATE, PROCESS DAILY DATA, MANAGE OBJECTIVES, MANAGE USER PREFERENCES, MANAGE SETTINGS |
 | Pages / Nav | `app/`, `components/ui/Nav.tsx` | AESTHETIC UPDATE, PROCESS DAILY DATA, MANAGE USER PREFERENCES, MANAGE SETTINGS |
 
@@ -59,6 +60,7 @@ Claude Code reads this file at the start of every session. It reflects the curre
 | `userPreferences` | `UserPreferences` | MANAGE USER PREFERENCES |
 | `userZones` | `UserZones` | MANAGE ZONES |
 | `lastExportDate` | ISO string \| null — device-local, never exported | MANAGE SETTINGS |
+| `benchmarkCompletionLog` | `Record<string, BenchmarkCompletion>` — key is `objectiveId.benchmarkId` | MANAGE BENCHMARK LOG |
 
 ---
 

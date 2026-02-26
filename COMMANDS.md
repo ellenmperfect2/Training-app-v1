@@ -70,6 +70,13 @@ Version number increments with every substantive change. Summary should be 3–6
 
 ---
 
+## MANAGE BENCHMARK LOG
+- **Scope:** benchmark checklist UI (`/benchmarks`), `benchmarkCompletionLog` localStorage key (read/write only). Read access to `benchmark-library.json`, `assessment-library.json`, and `activeObjectives`.
+- **Never touch:** `benchmark-library.json` (no writes), `assessment-library.json` (no writes), `objective-library.json`, `/lib/recommendation`, `/lib/recovery`, any other localStorage key
+- **Triggers:** "benchmark checklist", "log benchmark", "benchmark result", "readiness check", "did I pass", "benchmark status"
+
+---
+
 ## MANAGE CHECKIN LOG
 - **Scope:** Check-in history UI (`/checkin/history`), `checkInLog` localStorage key (read and write only)
 - **Never Touch:** `/lib/recovery`, `/lib/recommendation`, `personalBaseline` localStorage key, any other localStorage key, any data file

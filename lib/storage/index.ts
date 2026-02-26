@@ -16,6 +16,7 @@ export const STORAGE_KEYS = {
   USER_PREFERENCES: 'userPreferences',
   USER_ZONES: 'userZones',
   LAST_EXPORT_DATE: 'lastExportDate',
+  BENCHMARK_COMPLETION_LOG: 'benchmarkCompletionLog',
 } as const;
 
 function isBrowser(): boolean {
@@ -276,6 +277,35 @@ export function setLastExportDate(isoDate: string): void {
 
 export function clearLastExportDate(): void {
   remove(STORAGE_KEYS.LAST_EXPORT_DATE);
+}
+
+// ── Benchmark Completion Log ───────────────────────────────────────────────
+// Key format: `${objectiveId}.${benchmarkId}` (e.g. "alpine-traverse-5day.aerobic-capacity.loaded-aerobic-test")
+
+export interface BenchmarkCompletion {
+  completedDate: string; // ISO date string (YYYY-MM-DD)
+  passed: boolean;
+  notes?: string;
+}
+
+export type BenchmarkCompletionLog = Record<string, BenchmarkCompletion>;
+
+export function getBenchmarkCompletionLog(): BenchmarkCompletionLog {
+  return read<BenchmarkCompletionLog>(STORAGE_KEYS.BENCHMARK_COMPLETION_LOG, {});
+}
+
+export function setBenchmarkCompletionLog(log: BenchmarkCompletionLog): void {
+  write(STORAGE_KEYS.BENCHMARK_COMPLETION_LOG, log);
+}
+
+export function upsertBenchmarkCompletion(
+  objectiveId: string,
+  benchmarkId: string,
+  completion: BenchmarkCompletion
+): void {
+  const log = getBenchmarkCompletionLog();
+  log[`${objectiveId}.${benchmarkId}`] = completion;
+  setBenchmarkCompletionLog(log);
 }
 
 // ── Types ──────────────────────────────────────────────────────────────────

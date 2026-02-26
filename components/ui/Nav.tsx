@@ -10,6 +10,7 @@ const links = [
   { href: '/log/conditioning', label: 'Conditioning' },
   { href: '/upload', label: 'Cardio' },
   { href: '/objectives', label: 'Objectives' },
+  { href: '/benchmarks', label: 'Benchmarks' },
   { href: '/preferences', label: 'Preferences' },
   { href: '/zones', label: 'HR Zones' },
   { href: '/settings', label: 'Settings' },
