@@ -1,1 +1,32 @@
-[]
+[
+  {
+    "id": "alpine-traverse-5day",
+    "name": "5-Day Alpine Traverse",
+    "type": "alpine-hiking",
+    "version": "1.0",
+    "generatedDate": "2026-02-26",
+    "profile": {
+      "durationDays": 5,
+      "dailyElevationGainFt": 4000,
+      "dailyMileage": 7,
+      "maxAltitudeFt": 10000,
+      "packWeight": "heavy",
+      "activityType": "alpine-hiking"
+    },
+    "trainingPlanLogic": {
+      "primaryStimulus": "loaded-aerobic-endurance",
+      "secondaryStimulus": "posterior-chain-and-single-leg-strength",
+      "tertiaryStimulus": "threshold-capacity",
+      "reduceStimulus": "climbing-and-upper-body-volume",
+      "keyWorkoutTypes": [
+        "Long loaded Z2 hike — weekly, increasing duration and elevation gain",
+        "Threshold intervals on uphill terrain at pack weight — 3x10min, introduced week 5",
+        "Back-to-back loaded days — every other weekend from week 3",
+        "Loaded descents — weekly, increasing elevation loss",
+        "Single leg RDL and step-down work — twice weekly for descent durability"
+      ],
+      "taperWeeks": 1,
+      "simulationBlockWeeksOut": 3
+    }
+  }
+]

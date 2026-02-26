@@ -1,1 +1,73 @@
-[]
+[
+  {
+    "objectiveId": "alpine-traverse-5day",
+    "assessments": [
+      {
+        "id": "loaded-aerobic-baseline",
+        "name": "Loaded Aerobic Baseline",
+        "mapsToBenchmark": "aerobic-capacity.loaded-aerobic-test",
+        "terrain": "Trail with sustained elevation gain, minimum 1,500ft continuous climb available",
+        "equipment": "35lb pack, HR monitor, trekking poles optional",
+        "workout": "5-hour loaded hike at 35lb pack targeting 3,000ft of gain. Maintain conversational pace throughout — if you cannot speak a full sentence without stopping to breathe, slow down. Take only brief stops (under 3 min) for water and food.",
+        "track": "Total time, total elevation gain, average HR, HR zone distribution, perceived effort at 2hr/4hr/finish, any mandatory rest stops and why",
+        "passingStandard": "5 hours, 3,000ft gain, HR in Z2 for 75%+ of moving time, perceived effort 6–7 at finish",
+        "missMeans": "Unable to maintain Z2 pace without frequent rest, or perceived effort above 8 before the 4-hour mark — aerobic base needs more work before the traverse"
+      },
+      {
+        "id": "loaded-carry-endurance",
+        "name": "Loaded Carry Endurance Test",
+        "mapsToBenchmark": "muscular-endurance.loaded-carry-test",
+        "terrain": "Trail or sustained treadmill incline, minimum 10% grade",
+        "equipment": "35lb pack, HR monitor",
+        "workout": "Continuous loaded carry targeting 2,500ft gain at 35lb pack. No planned rest stops — push through leg fatigue and find your sustainable pace. Note the first point where you feel you need to stop versus choosing to stop.",
+        "track": "Total time, elevation gain completed, number and duration of rest stops, leg fatigue level at each hour, movement quality at finish",
+        "passingStandard": "2,500ft gain in under 3.5 hours, no mandatory rest stops, movement quality maintained throughout",
+        "missMeans": "Required mandatory rest stops before 2,000ft, or movement quality degraded before finish — posterior chain and single-leg work needs to increase in training"
+      },
+      {
+        "id": "descent-durability",
+        "name": "Descent Durability Test",
+        "mapsToBenchmark": "muscular-endurance.descent-durability-test",
+        "terrain": "Trail with sustained descent, minimum 2,500ft continuous loss available",
+        "equipment": "35lb pack, trekking poles recommended",
+        "workout": "Continuous loaded descent of 2,500ft at 35lb pack at a moderate but consistent pace — not slow shuffling, not aggressive running. Maintain the pace you'd use on day 2 of a traverse. Note quad fatigue accumulation through the descent.",
+        "track": "Total time, pace consistency (did you slow significantly in the final 1,000ft), quad fatigue level at each 500ft interval, soreness level 24 and 48 hours after",
+        "passingStandard": "Consistent pace throughout, manageable quad burn, next-day soreness mild and resolved within 24 hours",
+        "missMeans": "Significant pace slowdown in final third of descent, or 48-hour soreness — eccentric loading capacity is the gap and needs targeted training (step-downs, loaded descents, single-leg RDL volume)"
+      },
+      {
+        "id": "back-to-back-loaded",
+        "name": "Back-to-Back Loaded Day Test",
+        "mapsToBenchmark": "muscular-endurance.back-to-back-test",
+        "terrain": "Trail with both significant gain and loss, ideally same route both days for direct comparison",
+        "equipment": "35lb pack both days, HR monitor, trekking poles optional",
+        "workout": "Day 1: 6–7 miles, 3,000ft gain, 3,000ft loss at 35lb pack at traverse pace. Sleep normally. Day 2: same route or equivalent within 12 hours of finishing day 1. Do not add extra recovery time.",
+        "track": "Day 1 total time and pace, Day 2 total time and pace, pace differential, descent quality on day 2 vs day 1, perceived effort comparison, any movement compensation noted on day 2",
+        "passingStandard": "Day 2 pace within 15% of day 1, descent quality maintained, no significant movement compensation",
+        "missMeans": "Greater than 20% pace degradation or compromised descent form on day 2 — cumulative fatigue tolerance is insufficient for a 5-day objective"
+      },
+      {
+        "id": "threshold-altitude-interval",
+        "name": "Threshold Capacity Test",
+        "mapsToBenchmark": "aerobic-capacity.loaded-aerobic-test",
+        "terrain": "Sustained uphill trail or treadmill incline",
+        "equipment": "35lb pack, HR monitor",
+        "workout": "3 × 10 min at threshold effort (Z4, target HR zone 4) with 10 min Z1 recovery between efforts, all at 35lb pack on uphill terrain. This simulates the technical pushes you'll encounter on the traverse when the terrain demands it regardless of your preferred pace.",
+        "track": "HR during each interval and recovery, ability to recover to Z1 during rest periods, perceived effort during intervals, leg fatigue after final interval",
+        "passingStandard": "Complete all 3 intervals in Z4, HR recovers below Z2 ceiling within 8 minutes of each recovery period, perceived effort during intervals sustainable (not maximal)",
+        "missMeans": "Unable to complete 3 intervals, or HR fails to recover during rest periods — threshold capacity needs development before the traverse, particularly given the altitude demands"
+      },
+      {
+        "id": "simulation-block",
+        "name": "3-Day Simulation Block",
+        "mapsToBenchmark": "cumulative-fatigue.simulation-block",
+        "terrain": "Trail with full gain and loss available across 3 consecutive days",
+        "equipment": "35lb pack all 3 days, HR monitor, trekking poles",
+        "workout": "Day 1: 7 miles, 3,500ft gain, 3,000ft loss at 35lb, 80–90% effort. Day 2: same. Day 3: 5 miles, 2,500ft gain, 2,000ft loss at 35lb — reduced but continuous.",
+        "track": "Daily time and pace, HR zone distribution each day, perceived effort each day, leg quality each morning before starting, descent quality each day, RPE comparison day 3 vs day 1",
+        "passingStandard": "Day 3 RPE no more than 2 points above day 1 for equivalent terrain, descent quality maintained, no movement compensation from fatigue",
+        "missMeans": "Day 3 feels like survival from mile 1, or descent form breaks down — cumulative fatigue tolerance is the gap and more back-to-back training days are needed before the objective"
+      }
+    ]
+  }
+]
