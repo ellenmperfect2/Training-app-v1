@@ -222,6 +222,15 @@ Version number increments with every substantive change. Summary should be 3–6
 
 ---
 
+## EDIT ACTIVITY LOG
+- **Scope:** `components/activity/ActivityLog.tsx` only — inline edit and delete UI within the detail view
+- **Read/write:** `workoutLog` localStorage (reads and writes permitted for edit/delete operations only)
+- **Never touch:** `/lib/objective-matcher.js`, `/lib/recommendation`, `/lib/recovery`, `/lib/fit-parser.ts`, any data file, any other localStorage key, session parsing logic
+- **Editable fields:** notes (all session types), cardio annotation fields (elevation gain, pack weight, terrain, perceived effort), strength set reps/weight; delete any session permanently
+- **Triggers:** "edit activity", "delete activity", "edit session", "delete session", "edit workout", "update notes", "edit set"
+
+---
+
 ## ADD OBJECTIVE MATCHER
 - **Scope:** `/lib/objective-matcher.js` only
 - **Read from:** `activeObjectives` localStorage, `objective-library.json`, `exercise-library.json` (muscle group lookups), `workoutLog` (read only at call time — no writes)
