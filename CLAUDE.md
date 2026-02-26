@@ -1,5 +1,5 @@
 # Summit Dashboard — CLAUDE.md
-**v7 — added cardio-anaerobic-flag, weekly target blocks (cardio/strength/climbing), and loaded-carry-direction to TrainingConfig schema — 2026-02-26**
+**v8 — added MANAGE CHECKIN LOG command type, check-in history screen and route — 2026-02-26**
 
 Claude Code reads this file at the start of every session. It reflects the current architectural state of the app. Update this file (incrementing v[N]) after any change to file ownership, localStorage structure, data shapes, command types, or system architecture.
 
@@ -35,6 +35,7 @@ Claude Code reads this file at the start of every session. It reflects the curre
 | FIT parser | `lib/fit-parser.ts` | PROCESS DAILY DATA |
 | User preferences | `lib/storage/index.ts` (UserPreferences), `components/preferences/`, `app/preferences/` | MANAGE USER PREFERENCES |
 | Settings screen | `components/settings/`, `app/settings/` | MANAGE SETTINGS |
+| Check-in history | `components/checkin/CheckInHistory.tsx`, `app/checkin/history/` | MANAGE CHECKIN LOG |
 | UI components | `components/` | AESTHETIC UPDATE, PROCESS DAILY DATA, MANAGE OBJECTIVES, MANAGE USER PREFERENCES, MANAGE SETTINGS |
 | Pages / Nav | `app/`, `components/ui/Nav.tsx` | AESTHETIC UPDATE, PROCESS DAILY DATA, MANAGE USER PREFERENCES, MANAGE SETTINGS |
 

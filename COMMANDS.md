@@ -70,6 +70,13 @@ Version number increments with every substantive change. Summary should be 3–6
 
 ---
 
+## MANAGE CHECKIN LOG
+- **Scope:** Check-in history UI (`/checkin/history`), `checkInLog` localStorage key (read and write only)
+- **Never Touch:** `/lib/recovery`, `/lib/recommendation`, `personalBaseline` localStorage key, any other localStorage key, any data file
+- **Triggers:** "check-in history", "edit check-in", "delete check-in", "view past check-ins", "check-in log"
+
+---
+
 ## MANAGE OBJECTIVES
 - **Scope:** Objective management UI, localStorage `activeObjectives` and `archivedObjectives` read/write, objective selector
 - **Never touch:** `objective-library.json`, `benchmark-library.json`, `assessment-library.json`, `/lib/recommendation`, `/lib/recovery`, `training-config.json`
