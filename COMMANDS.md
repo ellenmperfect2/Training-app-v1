@@ -49,6 +49,13 @@ Version number increments with every substantive change. Summary should be 3–6
 
 ---
 
+## MANAGE OBJECTIVES
+- **Scope:** Objective management UI, localStorage `activeObjectives` and `archivedObjectives` read/write, objective selector
+- **Never touch:** `objective-library.json`, `benchmark-library.json`, `assessment-library.json`, `/lib/recommendation`, `/lib/recovery`, `training-config.json`
+- **Triggers:** "manage objectives", "objective screen", "deactivate objective", "reactivate objective", "edit target date", "edit priority weight"
+
+---
+
 ## ACTIVATE OBJECTIVE
 - **Scope:** active objectives in localStorage, training plan display, weighting UI, conflict detection
 - **Never touch:** objective library files, benchmark definitions, assessment definitions, training logs, training config

@@ -232,6 +232,10 @@ export interface ActivatedObjective {
   weeksRemaining: number;
   assessmentResults: AssessmentResult[];
   trainingPlan: TrainingWeek[];
+  // Set at activation time, overrides library default
+  packWeight?: string;
+  region?: string;
+  limitations?: string[];
 }
 
 export interface ArchivedObjective {

@@ -1,5 +1,5 @@
 # Summit Dashboard — CLAUDE.md
-**v1 — initial build + Prompt 1 changes — 2026-02-26**
+**v2 — added MANAGE OBJECTIVES command type + ActivatedObjective activation fields — 2026-02-26**
 
 Claude Code reads this file at the start of every session. It reflects the current architectural state of the app. Update this file (incrementing v[N]) after any change to file ownership, localStorage structure, data shapes, command types, or system architecture.
 
@@ -104,6 +104,32 @@ interface DailyCheckIn {
 ```
 
 **Note (Prompt 1):** Sleep input now uses two integer fields (hours + minutes 0–59) that convert to decimal on save. Display format is "Xh Ym" everywhere.
+
+---
+
+## Key Data Shape: ActivatedObjective
+
+```ts
+interface ActivatedObjective {
+  id: string;
+  libraryId: string;
+  name: string;
+  type: string;
+  targetDate: string;
+  activatedDate: string;
+  priorityWeight: number;       // 1–5 on ManageObjectives screen
+  currentPhase: string;         // Recalculated on targetDate change
+  weeksRemaining: number;       // Recalculated on targetDate change
+  assessmentResults: AssessmentResult[];
+  trainingPlan: TrainingWeek[];
+  // Added Prompt 3 — set at activation time, all optional
+  packWeight?: string;          // 'none' | 'light' | 'moderate' | 'heavy'
+  region?: string;
+  limitations?: string[];       // from: knee, shoulder, ankle, back, forearm, other
+}
+```
+
+**Phase calculation** (Prompt 3): >= 12w = Base, 8–11w = Build, 4–7w = Peak, 1–3w = Taper, 0w = Race Week
 
 ---
 
