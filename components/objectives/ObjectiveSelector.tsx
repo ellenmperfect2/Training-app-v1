@@ -64,19 +64,19 @@ export default function ObjectiveSelector({ onActivate, onClose, existingObjecti
 
   if (available.length === 0) {
     return (
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 text-center space-y-2">
-        <div className="text-zinc-400 text-sm">No objectives available to add</div>
-        <div className="text-zinc-600 text-xs">Use the Objective Builder workflow to create objectives.</div>
-        <button onClick={onClose} className="text-xs text-zinc-500 hover:text-zinc-300">Close</button>
+      <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 text-center space-y-2">
+        <div className="text-glacier-secondary text-sm">No objectives available to add</div>
+        <div className="text-glacier-muted text-xs">Use the Objective Builder workflow to create objectives.</div>
+        <button onClick={onClose} className="text-xs text-glacier-secondary hover:text-glacier-primary transition-colors">Close</button>
       </div>
     );
   }
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-4">
+    <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-4 card-hover">
       <div className="flex items-center justify-between">
-        <div className="text-sm font-medium">Select objective</div>
-        <button onClick={onClose} className="text-zinc-600 hover:text-zinc-400 text-xs">Cancel</button>
+        <div className="text-sm font-medium text-glacier-primary">Select objective</div>
+        <button onClick={onClose} className="text-glacier-muted hover:text-glacier-secondary text-xs transition-colors">Cancel</button>
       </div>
 
       <div className="space-y-2">
@@ -84,32 +84,34 @@ export default function ObjectiveSelector({ onActivate, onClose, existingObjecti
           <button key={obj.id} onClick={() => setSelected(obj)}
             className={`w-full text-left px-3 py-2 rounded border transition-colors ${
               selected?.id === obj.id
-                ? 'bg-zinc-700 border-zinc-600'
-                : 'bg-zinc-950 border-zinc-700 hover:border-zinc-600'
+                ? 'bg-glacier-accent border-glacier-accent text-glacier-bg'
+                : 'bg-glacier-card-alt border-glacier-edge text-glacier-secondary hover:border-glacier-edge-hover'
             }`}
           >
             <div className="text-sm">{obj.name}</div>
-            <div className="text-xs text-zinc-500">{obj.type} · {obj.profile?.durationDays} days · pack: {obj.profile?.packWeight}</div>
+            <div className={`text-xs mt-0.5 ${selected?.id === obj.id ? 'text-glacier-bg opacity-80' : 'text-glacier-muted'}`}>
+              {obj.type} · {obj.profile?.durationDays} days · pack: {obj.profile?.packWeight}
+            </div>
           </button>
         ))}
       </div>
 
       {selected && (
-        <div className="space-y-3 border-t border-zinc-800 pt-3">
+        <div className="space-y-3 border-t border-glacier-edge pt-3">
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Target date</label>
+            <label className="block text-xs text-glacier-secondary mb-1">Target date</label>
             <input type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)}
               min={new Date().toISOString().slice(0, 10)}
-              className="bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-sm" />
+              className="bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-sm text-glacier-primary input-glow" />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Priority weight: {priorityWeight}</label>
+            <label className="block text-xs text-glacier-secondary mb-1">Priority weight: {priorityWeight}</label>
             <input type="range" min={1} max={10} value={priorityWeight}
               onChange={(e) => setPriorityWeight(parseInt(e.target.value))}
-              className="w-full accent-zinc-400" />
+              className="w-full accent-[#39c5cf]" />
           </div>
           <button onClick={handleActivate} disabled={!targetDate}
-            className="w-full py-2 bg-zinc-700 hover:bg-zinc-600 disabled:opacity-40 rounded text-sm font-medium">
+            className="w-full py-2 bg-glacier-accent hover:opacity-90 disabled:opacity-40 text-glacier-bg rounded text-sm font-medium transition-opacity">
             Activate
           </button>
         </div>

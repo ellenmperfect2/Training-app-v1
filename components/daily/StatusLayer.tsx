@@ -10,9 +10,9 @@ import { getCurrentWeekDates } from '@/lib/stimulus-engine';
 import type { StatusLayer as StatusLayerType } from '@/lib/status';
 
 const LIGHT_COLORS: Record<string, string> = {
-  green: 'text-green-400',
-  yellow: 'text-yellow-400',
-  red: 'text-red-400',
+  green:  'text-glacier-success',
+  yellow: 'text-glacier-warning',
+  red:    'text-glacier-danger',
 };
 
 export default function StatusLayer() {
@@ -41,39 +41,39 @@ export default function StatusLayer() {
   const { volumeStatus, progressionFlags, climbingFlags, conditioningStatus, objectiveStatuses } = status;
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-4">
-      <div className="text-xs text-zinc-500 uppercase tracking-wider font-medium">This Week</div>
+    <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-4 card-hover">
+      <div className="text-xs text-glacier-secondary uppercase tracking-wider font-medium">This Week</div>
 
-      {/* Volume */}
-      <div className="grid grid-cols-3 gap-3 text-sm">
+      {/* Volume stat tiles — Part F */}
+      <div className="grid grid-cols-3 gap-3">
         {[
           { label: 'Cardio', light: volumeStatus.cardio, value: `${Math.round(volumeStatus.cardioMinutesThisWeek / 60 * 10) / 10}hr` },
           { label: 'Strength', light: volumeStatus.strength, value: `${volumeStatus.strengthSessionsThisWeek} sessions` },
           { label: 'Climbing', light: volumeStatus.climbing, value: `${volumeStatus.climbingSessionsThisWeek} sessions` },
         ].map(({ label, light, value }) => (
-          <div key={label} className="text-center">
-            <div className={`text-lg font-semibold ${LIGHT_COLORS[light]}`}>●</div>
-            <div className="text-zinc-300 text-xs">{value}</div>
-            <div className="text-zinc-600 text-xs">{label}</div>
+          <div key={label} className="bg-glacier-card-alt border border-glacier-edge rounded-lg text-center" style={{ padding: '12px 14px' }}>
+            <div className={`text-xs mb-1 ${LIGHT_COLORS[light]}`}>●</div>
+            <div className="text-[22px] font-bold text-glacier-primary leading-tight">{value}</div>
+            <div className="text-[11px] text-glacier-muted mt-0.5">{label}</div>
           </div>
         ))}
       </div>
 
       {/* Conditioning */}
-      <div className="text-xs text-zinc-500">
+      <div className="text-xs text-glacier-secondary">
         Conditioning: {conditioningStatus.sessionsThisWeek}/{conditioningStatus.targetSessions} sessions
         {conditioningStatus.onTrack
-          ? <span className="text-green-500 ml-1">✓</span>
-          : <span className="text-yellow-500 ml-1">·</span>
+          ? <span className="text-glacier-success ml-1">✓</span>
+          : <span className="text-glacier-warning ml-1">·</span>
         }
       </div>
 
       {/* Objective timelines */}
       {objectiveStatuses.map((os) => (
         <div key={os.objectiveId} className="text-xs">
-          <span className="text-zinc-400">{os.objectiveName}: </span>
+          <span className="text-glacier-secondary">{os.objectiveName}: </span>
           <span className={
-            os.timelineStatus === 'on-track' ? 'text-green-400' : 'text-yellow-400'
+            os.timelineStatus === 'on-track' ? 'text-glacier-success' : 'text-glacier-warning'
           }>
             {os.timelineStatus}
           </span>
@@ -82,14 +82,14 @@ export default function StatusLayer() {
 
       {/* Progression flags */}
       {progressionFlags.map((flag) => (
-        <div key={flag.exerciseId} className="text-xs text-sky-400">
+        <div key={flag.exerciseId} className="text-xs text-glacier-accent">
           {flag.message}
         </div>
       ))}
 
       {/* Climbing plateau flags */}
       {climbingFlags.map((flag) => (
-        <div key={flag.discipline} className="text-xs text-amber-400">
+        <div key={flag.discipline} className="text-xs text-glacier-warning">
           {flag.message}
         </div>
       ))}

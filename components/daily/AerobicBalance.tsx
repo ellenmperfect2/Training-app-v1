@@ -64,12 +64,15 @@ export default function AerobicBalance() {
 
   const maxElev = Math.max(...elevSparkline, 1);
   const balanceLabel = aerobicBalanceLabel(aerobicPct);
-  const balanceColor = aerobicPct >= 75 ? 'text-green-400' : aerobicPct >= 50 ? 'text-yellow-400' : 'text-orange-400';
+  const balanceColor =
+    aerobicPct >= 75 ? 'text-glacier-success' :
+    aerobicPct >= 50 ? 'text-glacier-warning' :
+    'text-glacier-fatigued';
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+    <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3 card-hover">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-zinc-200">Cardio This Week</h2>
+        <h2 className="text-sm font-semibold text-glacier-primary">Cardio This Week</h2>
         {z12Hours + z45Hours > 0 && (
           <span className={`text-xs ${balanceColor}`}>{balanceLabel}</span>
         )}
@@ -77,53 +80,52 @@ export default function AerobicBalance() {
 
       {z12Hours + z45Hours > 0 && (
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <div className="text-xs text-zinc-500 mb-0.5">Aerobic (Z1–Z2)</div>
-            <div className="text-base font-semibold text-green-400">{z12Hours}h</div>
-            <div className="text-xs text-zinc-600">{aerobicPct}% of cardio</div>
+          <div className="bg-glacier-card-alt border border-glacier-edge rounded" style={{ padding: '12px 14px' }}>
+            <div className="text-[22px] font-bold text-glacier-primary leading-tight">{z12Hours}h</div>
+            <div className="text-[11px] text-glacier-muted mt-0.5">Aerobic (Z1–Z2)</div>
+            <div className="text-[10px] text-glacier-muted">{aerobicPct}% of cardio</div>
           </div>
-          <div>
-            <div className="text-xs text-zinc-500 mb-0.5">Anaerobic (Z4–Z5)</div>
-            <div className="text-base font-semibold text-orange-400">{z45Hours}h</div>
-            <div className="text-xs text-zinc-600">{100 - aerobicPct}% of cardio</div>
+          <div className="bg-glacier-card-alt border border-glacier-edge rounded" style={{ padding: '12px 14px' }}>
+            <div className="text-[22px] font-bold text-glacier-primary leading-tight">{z45Hours}h</div>
+            <div className="text-[11px] text-glacier-muted mt-0.5">Anaerobic (Z4–Z5)</div>
+            <div className="text-[10px] text-glacier-muted">{100 - aerobicPct}% of cardio</div>
           </div>
         </div>
       )}
 
       {(weekElev > 0 || todayElev > 0) && (
         <div>
-          <div className="text-xs text-zinc-500 mb-1.5">Elevation gain — cardio only</div>
+          <div className="text-xs text-glacier-secondary mb-1.5">Elevation gain — cardio only</div>
           <div className="grid grid-cols-2 gap-3 mb-1.5">
-            <div>
-              <div className="text-xs text-zinc-600">Today</div>
-              <div className="text-sm font-medium text-zinc-300">{todayElev.toLocaleString()}ft</div>
+            <div className="bg-glacier-card-alt border border-glacier-edge rounded" style={{ padding: '12px 14px' }}>
+              <div className="text-[22px] font-bold text-glacier-primary leading-tight">{todayElev.toLocaleString()}ft</div>
+              <div className="text-[11px] text-glacier-muted mt-0.5">Today</div>
             </div>
-            <div>
-              <div className="text-xs text-zinc-600">This week</div>
+            <div className="bg-glacier-card-alt border border-glacier-edge rounded" style={{ padding: '12px 14px' }}>
               <div className="flex items-baseline gap-2">
-                <span className="text-sm font-medium text-zinc-300">{weekElev.toLocaleString()}ft</span>
-                {/* Sparkline */}
+                <span className="text-[22px] font-bold text-glacier-primary leading-tight">{weekElev.toLocaleString()}ft</span>
                 {elevSparkline.some((v) => v > 0) && (
                   <div className="flex items-end gap-0.5 h-5">
                     {elevSparkline.map((v, i) => (
                       <div
                         key={i}
-                        className={`w-4 rounded-sm ${i === 3 ? 'bg-zinc-400' : 'bg-zinc-700'}`}
+                        className={`w-4 rounded-sm ${i === 3 ? 'bg-glacier-secondary' : 'bg-glacier-muted'}`}
                         style={{ height: `${Math.max(2, Math.round((v / maxElev) * 20))}px` }}
                       />
                     ))}
                   </div>
                 )}
               </div>
+              <div className="text-[11px] text-glacier-muted mt-0.5">This week</div>
             </div>
           </div>
           {elevSparkline.some((v) => v > 0) && (
-            <div className="text-xs text-zinc-600">4-week sparkline (oldest → this week)</div>
+            <div className="text-xs text-glacier-muted">4-week sparkline (oldest → this week)</div>
           )}
         </div>
       )}
 
-      <p className="text-xs text-zinc-700">Cardio only — see weekly analysis for full training load picture.</p>
+      <p className="text-xs text-glacier-muted">Cardio only — see weekly analysis for full training load picture.</p>
     </div>
   );
 }

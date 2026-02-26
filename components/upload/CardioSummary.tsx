@@ -29,13 +29,54 @@ function formatDuration(seconds: number): string {
   return `${m}m`;
 }
 
-function ZoneBar({ pct, color }: { pct: number; color: string }) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <div className="h-2 rounded flex-1 bg-zinc-800 overflow-hidden">
-        <div className={`h-full rounded ${color}`} style={{ width: `${Math.min(100, pct)}%` }} />
+const ZONE_STYLES = [
+  { bg: 'var(--zone1)', label: 'Z1' },
+  { bg: 'var(--zone2)', label: 'Z2' },
+  { bg: 'var(--zone3)', label: 'Z3' },
+  { bg: 'var(--zone4)', label: 'Z4' },
+  { bg: 'var(--zone5)', label: 'Z5' },
+];
+
+function ZoneBarStrip({ pcts }: { pcts: { z1: number; z2: number; z3: number; z4: number; z5: number } | null }) {
+  if (!pcts) {
+    return (
+      <div className="space-y-1.5">
+        <div style={{ height: '10px', borderRadius: '5px', background: 'var(--border)', width: '100%' }} />
+        <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>No cardio data this period</div>
       </div>
-      <span className="text-xs text-zinc-500 tabular-nums w-8 text-right">{pct}%</span>
+    );
+  }
+
+  const values = [pcts.z1, pcts.z2, pcts.z3, pcts.z4, pcts.z5];
+  const nonZero = values.map((v, i) => ({ v, i })).filter(({ v }) => v > 0);
+  const total = nonZero.length;
+
+  return (
+    <div className="space-y-1.5">
+      <div style={{ display: 'flex', height: '10px', gap: '2px', width: '100%' }}>
+        {nonZero.map(({ v, i }, idx) => (
+          <div
+            key={i}
+            style={{
+              background: ZONE_STYLES[i].bg,
+              flex: v,
+              borderRadius:
+                total === 1 ? '5px' :
+                idx === 0 ? '5px 0 0 5px' :
+                idx === total - 1 ? '0 5px 5px 0' : '0',
+            }}
+          />
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: '12px' }}>
+        {values.map((v, i) =>
+          v > 0 ? (
+            <span key={i} style={{ fontSize: '10px', color: ZONE_STYLES[i].bg }}>
+              {ZONE_STYLES[i].label} {v}%
+            </span>
+          ) : null
+        )}
+      </div>
     </div>
   );
 }
@@ -56,7 +97,6 @@ function buildZonePcts(sessions: CardioSession[]) {
 }
 
 function get4WeekTrendLabel(weeks: CardioSession[][]): string {
-  // weeks[0] = most recent, weeks[1-3] = prior 3
   const getZ2Hours = (w: CardioSession[]) => computeZoneTotals(w).z2Hours;
   const recent = getZ2Hours(weeks[0]);
   const priorAvg = (getZ2Hours(weeks[1]) + getZ2Hours(weeks[2]) + getZ2Hours(weeks[3])) / 3;
@@ -81,7 +121,6 @@ export default function CardioSummary() {
     setTodaySessions(log.cardio.filter((s) => s.date === t));
     setWeekSessions(log.cardio.filter((s) => s.date >= weekStart && s.date <= t));
 
-    // Build 4 weekly buckets (week 0 = current, weeks 1-3 = prior)
     const weeks: CardioSession[][] = [[], [], [], []];
     for (let w = 0; w < 4; w++) {
       const end = daysAgo(w * 7);
@@ -104,96 +143,76 @@ export default function CardioSummary() {
 
   const trendLabel = get4WeekTrendLabel(weeklyData);
 
-  const ZONE_COLORS = ['bg-blue-600', 'bg-green-600', 'bg-yellow-500', 'bg-orange-500', 'bg-red-600'];
-
   return (
     <div className="space-y-4">
       {/* Today */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
-        <h2 className="text-sm font-semibold text-zinc-200">Today</h2>
+      <section className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3 card-hover">
+        <h2 className="text-sm font-semibold text-glacier-primary">Today</h2>
         {todaySessions.length === 0 ? (
-          <p className="text-xs text-zinc-600">No sessions logged today.</p>
+          <p className="text-xs text-glacier-muted">No sessions logged today.</p>
         ) : (
           <>
-            <div className="text-xs text-zinc-400 space-y-0.5">
+            <div className="text-xs text-glacier-secondary space-y-0.5">
               <div>{todaySessions.length} session{todaySessions.length > 1 ? 's' : ''} · {formatDuration(todayDuration)} · {Math.round(todayElev)}ft gain</div>
             </div>
-            {todayPcts ? (
-              <div className="space-y-1">
-                <div className="text-xs text-zinc-600 mb-1">Zone distribution</div>
-                {(['z1','z2','z3','z4','z5'] as const).map((z, i) => (
-                  <div key={z} className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-600 w-4">{z.toUpperCase()}</span>
-                    <ZoneBar pct={todayPcts[z]} color={ZONE_COLORS[i]} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-zinc-600">No HR data — zone distribution unavailable.</p>
-            )}
+            <div className="space-y-1.5">
+              <div className="text-xs text-glacier-muted mb-1">Zone distribution</div>
+              <ZoneBarStrip pcts={todayPcts} />
+            </div>
           </>
         )}
       </section>
 
       {/* This week */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
-        <h2 className="text-sm font-semibold text-zinc-200">This Week</h2>
+      <section className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3 card-hover">
+        <h2 className="text-sm font-semibold text-glacier-primary">This Week</h2>
         {weekSessions.length === 0 ? (
-          <p className="text-xs text-zinc-600">No sessions this week.</p>
+          <p className="text-xs text-glacier-muted">No sessions this week.</p>
         ) : (
           <>
-            <div className="text-xs text-zinc-400">
+            <div className="text-xs text-glacier-secondary">
               {weekSessions.length} session{weekSessions.length > 1 ? 's' : ''} · {formatDuration(weekDuration)} · {Math.round(weekElev)}ft gain
             </div>
-            {weekPcts ? (
-              <>
-                <div className="space-y-1">
-                  <div className="text-xs text-zinc-600 mb-1">Zone distribution</div>
-                  {(['z1','z2','z3','z4','z5'] as const).map((z, i) => (
-                    <div key={z} className="flex items-center gap-2">
-                      <span className="text-xs text-zinc-600 w-4">{z.toUpperCase()}</span>
-                      <ZoneBar pct={weekPcts[z]} color={ZONE_COLORS[i]} />
-                    </div>
-                  ))}
-                </div>
-                <div className="text-xs text-zinc-400">
-                  Balance:{' '}
-                  <span className={
-                    weekPcts.aerobicPct >= 75 ? 'text-green-400' :
-                    weekPcts.aerobicPct >= 50 ? 'text-yellow-400' : 'text-orange-400'
-                  }>
-                    {aerobicBalanceLabel(weekPcts.aerobicPct)}
-                  </span>
-                  <span className="text-zinc-600 ml-1">({weekPcts.aerobicPct}% Z1–Z2)</span>
-                </div>
-              </>
-            ) : (
-              <p className="text-xs text-zinc-600">No HR data — zone distribution unavailable.</p>
+            <div className="space-y-1.5">
+              <div className="text-xs text-glacier-muted mb-1">Zone distribution</div>
+              <ZoneBarStrip pcts={weekPcts} />
+            </div>
+            {weekPcts && (
+              <div className="text-xs text-glacier-secondary">
+                Balance:{' '}
+                <span className={
+                  weekPcts.aerobicPct >= 75 ? 'text-glacier-success' :
+                  weekPcts.aerobicPct >= 50 ? 'text-glacier-warning' : 'text-glacier-fatigued'
+                }>
+                  {aerobicBalanceLabel(weekPcts.aerobicPct)}
+                </span>
+                <span className="text-glacier-muted ml-1">({weekPcts.aerobicPct}% Z1–Z2)</span>
+              </div>
             )}
           </>
         )}
       </section>
 
       {/* 4-week trend */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
-        <h2 className="text-sm font-semibold text-zinc-200">4-Week Trend</h2>
+      <section className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3 card-hover">
+        <h2 className="text-sm font-semibold text-glacier-primary">4-Week Trend</h2>
         <div className="space-y-1.5">
           {weeklyData.map((w, i) => {
             const totals = computeZoneTotals(w);
             const label = i === 0 ? 'This week' : `${i}w ago`;
             return (
               <div key={i} className="flex items-center gap-3 text-xs">
-                <span className="text-zinc-600 w-14">{label}</span>
-                <div className="flex gap-3 text-zinc-400">
-                  <span>Z1-2: <span className="text-green-400">{(totals.z1Hours + totals.z2Hours).toFixed(1)}h</span></span>
-                  <span>Z4-5: <span className="text-orange-400">{(totals.z4Hours + totals.z5Hours).toFixed(1)}h</span></span>
+                <span className="text-glacier-muted w-14">{label}</span>
+                <div className="flex gap-3 text-glacier-secondary">
+                  <span>Z1-2: <span className="text-glacier-success">{(totals.z1Hours + totals.z2Hours).toFixed(1)}h</span></span>
+                  <span>Z4-5: <span className="text-glacier-warning">{(totals.z4Hours + totals.z5Hours).toFixed(1)}h</span></span>
                 </div>
               </div>
             );
           })}
         </div>
-        <div className="text-xs text-zinc-400">{trendLabel}</div>
-        <p className="text-xs text-zinc-600">Cardio only — see weekly analysis for full training load picture.</p>
+        <div className="text-xs text-glacier-secondary">{trendLabel}</div>
+        <p className="text-xs text-glacier-muted">Cardio only — see weekly analysis for full training load picture.</p>
       </section>
     </div>
   );

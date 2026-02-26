@@ -114,10 +114,10 @@ export default function PreferencesScreen() {
     <div className="space-y-8">
 
       {/* HR Calibration */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+      <section className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-200">HR Calibration Offset</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
+          <h2 className="text-sm font-semibold text-glacier-primary">HR Calibration Offset</h2>
+          <p className="text-xs text-glacier-secondary mt-0.5">
             Adjusts all Coros HR readings before they're used in analysis. Positive = your device reads low (corrects up). Negative = your device reads high (corrects down).
           </p>
         </div>
@@ -125,37 +125,37 @@ export default function PreferencesScreen() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setOffset(offset - 1)}
-            className="w-8 h-8 rounded bg-zinc-800 border border-zinc-700 text-zinc-300 text-sm hover:bg-zinc-700 transition-colors"
+            className="w-8 h-8 rounded bg-glacier-card-alt border border-glacier-edge text-glacier-secondary text-sm hover:border-glacier-edge-hover transition-colors"
           >
             −
           </button>
-          <span className="text-lg font-mono text-zinc-100 w-12 text-center">
+          <span className="text-lg font-mono text-glacier-primary w-12 text-center">
             {offset >= 0 ? `+${offset}` : offset}
           </span>
           <button
             onClick={() => setOffset(offset + 1)}
-            className="w-8 h-8 rounded bg-zinc-800 border border-zinc-700 text-zinc-300 text-sm hover:bg-zinc-700 transition-colors"
+            className="w-8 h-8 rounded bg-glacier-card-alt border border-glacier-edge text-glacier-secondary text-sm hover:border-glacier-edge-hover transition-colors"
           >
             +
           </button>
-          <span className="text-xs text-zinc-500 ml-2">bpm</span>
+          <span className="text-xs text-glacier-secondary ml-2">bpm</span>
         </div>
 
         {offset !== 0 && (
-          <div className="text-xs text-zinc-500 bg-zinc-950 rounded px-3 py-2">
-            Example: raw {exampleRaw} bpm → calibrated <span className="text-zinc-300">{exampleCalibrated} bpm</span>
+          <div className="text-xs text-glacier-secondary bg-glacier-bg rounded px-3 py-2">
+            Example: raw {exampleRaw} bpm → calibrated <span className="text-glacier-primary">{exampleCalibrated} bpm</span>
           </div>
         )}
         {offset === 0 && (
-          <div className="text-xs text-zinc-600">No offset applied — HR readings used as-is.</div>
+          <div className="text-xs text-glacier-muted">No offset applied — HR readings used as-is.</div>
         )}
       </section>
 
       {/* Active Limitations */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+      <section className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-200">Active Limitations</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
+          <h2 className="text-sm font-semibold text-glacier-primary">Active Limitations</h2>
+          <p className="text-xs text-glacier-secondary mt-0.5">
             Exercises that stress these areas will be suppressed from daily recommendations.
           </p>
         </div>
@@ -169,14 +169,14 @@ export default function PreferencesScreen() {
                 onClick={() => toggleLimitation(opt.value)}
                 className={`flex items-center gap-2 px-3 py-2 rounded border text-sm text-left transition-colors ${
                   active
-                    ? 'bg-amber-900/30 border-amber-700 text-amber-300'
-                    : 'bg-zinc-950 border-zinc-700 text-zinc-400 hover:border-zinc-600'
+                    ? 'bg-glacier-warning-soft border-glacier-warning text-glacier-primary'
+                    : 'bg-glacier-card-alt border-glacier-edge text-glacier-secondary hover:border-glacier-edge-hover'
                 }`}
               >
                 <span className={`w-3 h-3 rounded-sm border flex-shrink-0 flex items-center justify-center ${
-                  active ? 'bg-amber-600 border-amber-600' : 'border-zinc-600'
+                  active ? 'bg-glacier-warning border-glacier-warning' : 'border-glacier-edge'
                 }`}>
-                  {active && <span className="text-white text-xs leading-none">✓</span>}
+                  {active && <span className="text-glacier-bg text-xs leading-none">✓</span>}
                 </span>
                 {opt.label}
               </button>
@@ -186,10 +186,10 @@ export default function PreferencesScreen() {
       </section>
 
       {/* Methodology */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+      <section className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-200">Training Methodology</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
+          <h2 className="text-sm font-semibold text-glacier-primary">Training Methodology</h2>
+          <p className="text-xs text-glacier-secondary mt-0.5">
             Influences how the recommendation engine frames training priorities.
           </p>
         </div>
@@ -203,18 +203,18 @@ export default function PreferencesScreen() {
                 onClick={() => setMethodology(opt.value)}
                 className={`w-full flex items-start gap-3 px-3 py-2.5 rounded border text-left transition-colors ${
                   active
-                    ? 'bg-zinc-700 border-zinc-600'
-                    : 'bg-zinc-950 border-zinc-700 hover:border-zinc-600'
+                    ? 'bg-glacier-card-alt border-glacier-edge-hover'
+                    : 'bg-glacier-card-alt border-glacier-edge hover:border-glacier-edge-hover'
                 }`}
               >
                 <span className={`mt-0.5 w-3.5 h-3.5 rounded-full border flex-shrink-0 ${
-                  active ? 'bg-zinc-300 border-zinc-300' : 'border-zinc-500'
+                  active ? 'bg-glacier-accent border-glacier-accent' : 'border-glacier-edge'
                 }`} />
                 <div>
-                  <div className={`text-sm font-medium ${active ? 'text-zinc-100' : 'text-zinc-300'}`}>
+                  <div className={`text-sm font-medium ${active ? 'text-glacier-primary' : 'text-glacier-secondary'}`}>
                     {opt.label}
                   </div>
-                  <div className="text-xs text-zinc-500 mt-0.5">{opt.description}</div>
+                  <div className="text-xs text-glacier-muted mt-0.5">{opt.description}</div>
                 </div>
               </button>
             );
@@ -223,10 +223,10 @@ export default function PreferencesScreen() {
       </section>
 
       {/* Suppressed recommendation types */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+      <section className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-200">Suppressed Recommendation Types</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
+          <h2 className="text-sm font-semibold text-glacier-primary">Suppressed Recommendation Types</h2>
+          <p className="text-xs text-glacier-secondary mt-0.5">
             Permanently filter out categories of suggestions from your daily recommendation.
           </p>
         </div>
@@ -240,20 +240,20 @@ export default function PreferencesScreen() {
                 onClick={() => toggleSuppression(opt.value)}
                 className={`w-full flex items-start gap-3 px-3 py-2.5 rounded border text-left transition-colors ${
                   active
-                    ? 'bg-red-900/20 border-red-800 text-red-300'
-                    : 'bg-zinc-950 border-zinc-700 text-zinc-400 hover:border-zinc-600'
+                    ? 'bg-glacier-danger-soft border-glacier-danger text-glacier-primary'
+                    : 'bg-glacier-card-alt border-glacier-edge text-glacier-secondary hover:border-glacier-edge-hover'
                 }`}
               >
                 <span className={`mt-0.5 w-3.5 h-3.5 rounded-sm border flex-shrink-0 flex items-center justify-center ${
-                  active ? 'bg-red-700 border-red-700' : 'border-zinc-600'
+                  active ? 'bg-glacier-danger border-glacier-danger' : 'border-glacier-edge'
                 }`}>
-                  {active && <span className="text-white text-xs leading-none">✓</span>}
+                  {active && <span className="text-glacier-bg text-xs leading-none">✓</span>}
                 </span>
                 <div>
-                  <div className={`text-sm font-medium ${active ? 'text-red-300' : 'text-zinc-300'}`}>
+                  <div className={`text-sm font-medium ${active ? 'text-glacier-danger' : 'text-glacier-secondary'}`}>
                     {opt.label}
                   </div>
-                  <div className="text-xs text-zinc-500 mt-0.5">{opt.description}</div>
+                  <div className="text-xs text-glacier-muted mt-0.5">{opt.description}</div>
                 </div>
               </button>
             );
@@ -263,10 +263,10 @@ export default function PreferencesScreen() {
 
       {/* Objective notes */}
       {objectiveNames.length > 0 && (
-        <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+        <section className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-zinc-200">Objective Notes</h2>
-            <p className="text-xs text-zinc-500 mt-0.5">
+            <h2 className="text-sm font-semibold text-glacier-primary">Objective Notes</h2>
+            <p className="text-xs text-glacier-secondary mt-0.5">
               Personal context for each active objective. Included in Claude.ai analysis prompts.
             </p>
           </div>
@@ -274,14 +274,14 @@ export default function PreferencesScreen() {
           <div className="space-y-3">
             {objectiveNames.map(({ id, name }) => (
               <div key={id}>
-                <label className="block text-xs text-zinc-400 mb-1">{name}</label>
+                <label className="block text-xs text-glacier-secondary mb-1">{name}</label>
                 <textarea
                   value={prefs.objectiveNotes[id] ?? ''}
                   onChange={(e) => setObjectiveNote(id, e.target.value)}
                   onBlur={() => saveObjectiveNote(id)}
                   rows={2}
                   placeholder="e.g. Aiming for a sub-12h finish, training at altitude in June..."
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-sm resize-none text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500"
+                  className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-sm resize-none text-glacier-primary placeholder-glacier-muted input-glow"
                 />
               </div>
             ))}
@@ -291,7 +291,7 @@ export default function PreferencesScreen() {
 
       {/* Save indicator */}
       {saved && (
-        <div className="text-xs text-green-400 text-center py-1 transition-opacity">
+        <div className="text-xs text-glacier-success text-center py-1 transition-opacity">
           Saved
         </div>
       )}

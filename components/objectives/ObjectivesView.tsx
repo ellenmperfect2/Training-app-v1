@@ -76,11 +76,13 @@ export default function ObjectivesView() {
   return (
     <div className="space-y-6">
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-zinc-800 pb-2">
+      <div className="flex gap-2 border-b border-glacier-edge pb-2">
         {(['active', 'history'] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
-            className={`px-3 py-1.5 text-sm rounded transition-colors capitalize ${
-              tab === t ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-400 hover:text-zinc-200'
+            className={`px-4 py-1.5 text-sm rounded-[20px] transition-colors capitalize ${
+              tab === t
+                ? 'bg-glacier-accent text-glacier-bg font-semibold'
+                : 'text-glacier-secondary hover:text-glacier-primary'
             }`}
           >
             {t === 'active' ? `Active (${activeObjectives.length})` : `History (${archivedObjectives.length})`}
@@ -90,11 +92,10 @@ export default function ObjectivesView() {
 
       {tab === 'active' && (
         <div className="space-y-4">
-          {/* Active objectives */}
           {activeObjectives.length === 0 ? (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 text-center space-y-2">
-              <div className="text-zinc-400 text-sm">No active objectives</div>
-              <div className="text-zinc-600 text-xs">
+            <div className="bg-glacier-card border border-glacier-edge rounded-lg p-6 text-center space-y-2">
+              <div className="text-glacier-secondary text-sm">No active objectives</div>
+              <div className="text-glacier-muted text-xs">
                 {libraryEmpty
                   ? 'No objectives yet — use the Objective Builder to add your first'
                   : 'Select an objective from the library to begin training for it'}
@@ -111,17 +112,15 @@ export default function ObjectivesView() {
             ))
           )}
 
-          {/* Add objective button */}
           {!libraryEmpty && (
             <button
               onClick={() => setShowSelector(true)}
-              className="w-full py-2.5 border border-dashed border-zinc-700 rounded text-sm text-zinc-500 hover:text-zinc-300 hover:border-zinc-500 transition-colors"
+              className="w-full py-2.5 border border-dashed border-glacier-edge rounded text-sm text-glacier-secondary hover:text-glacier-primary hover:border-glacier-edge-hover transition-colors"
             >
               + Add objective
             </button>
           )}
 
-          {/* Selector */}
           {showSelector && (
             <ObjectiveSelector
               onActivate={handleActivate}

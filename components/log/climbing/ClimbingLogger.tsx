@@ -70,20 +70,20 @@ export default function ClimbingLogger() {
   return (
     <div className="space-y-6">
       <div>
-        <label className="block text-xs text-zinc-400 mb-1">Date</label>
+        <label className="block text-xs text-glacier-secondary mb-1">Date</label>
         <input type="date" value={date} max={today()} onChange={(e) => setDate(e.target.value)}
-          className="bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-sm" />
+          className="bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-sm text-glacier-primary input-glow" />
       </div>
 
       <div>
-        <label className="block text-xs text-zinc-400 mb-2">Session type</label>
+        <label className="block text-xs text-glacier-secondary mb-2">Session type</label>
         <div className="flex flex-wrap gap-2">
           {SESSION_TYPES.map((t) => (
             <button key={t.value} onClick={() => setSessionType(t.value)}
               className={`px-3 py-1.5 rounded text-sm border transition-colors ${
                 sessionType === t.value
-                  ? 'bg-zinc-600 border-zinc-500'
-                  : 'bg-zinc-900 border-zinc-700 text-zinc-400 hover:border-zinc-600'
+                  ? 'bg-glacier-accent border-glacier-accent text-glacier-bg'
+                  : 'bg-glacier-card border-glacier-edge text-glacier-secondary hover:border-glacier-edge-hover'
               }`}
             >
               {t.label}
@@ -94,8 +94,8 @@ export default function ClimbingLogger() {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-xs text-zinc-400">Climbs</label>
-          <button onClick={addClimb} className="text-xs text-zinc-400 hover:text-zinc-200">+ Add climb</button>
+          <label className="text-xs text-glacier-secondary">Climbs</label>
+          <button onClick={addClimb} className="text-xs text-glacier-secondary hover:text-glacier-primary transition-colors">+ Add climb</button>
         </div>
 
         {climbs.map((climb, i) => (
@@ -103,7 +103,7 @@ export default function ClimbingLogger() {
             <select
               value={climb.grade}
               onChange={(e) => updateClimb(i, 'grade', e.target.value)}
-              className="bg-zinc-900 border border-zinc-700 rounded px-2 py-1.5 text-sm"
+              className="bg-glacier-card-alt border border-glacier-edge rounded px-2 py-1.5 text-sm text-glacier-primary input-glow"
             >
               <option value="">Grade…</option>
               {grades.map((g) => <option key={g} value={g}>{g}</option>)}
@@ -113,27 +113,27 @@ export default function ClimbingLogger() {
                 <button key={r} onClick={() => updateClimb(i, 'result', r)}
                   className={`px-2 py-1 rounded text-xs border transition-colors ${
                     climb.result === r
-                      ? r === 'send' ? 'bg-green-900/50 border-green-700 text-green-300' : 'bg-zinc-700 border-zinc-600 text-zinc-300'
-                      : 'bg-zinc-900 border-zinc-700 text-zinc-500'
+                      ? r === 'send' ? 'bg-glacier-success-soft border-glacier-success text-glacier-success' : 'bg-glacier-card-alt border-glacier-edge-hover text-glacier-primary'
+                      : 'bg-glacier-card border-glacier-edge text-glacier-muted'
                   }`}
                 >
                   {r}
                 </button>
               ))}
             </div>
-            <button onClick={() => removeClimb(i)} className="text-zinc-700 hover:text-zinc-500 text-xs ml-auto">✕</button>
+            <button onClick={() => removeClimb(i)} className="text-glacier-muted hover:text-glacier-secondary text-xs ml-auto transition-colors">✕</button>
           </div>
         ))}
       </div>
 
       <div>
-        <label className="block text-xs text-zinc-400 mb-1">Notes (optional)</label>
+        <label className="block text-xs text-glacier-secondary mb-1">Notes (optional)</label>
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2}
-          className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm resize-none" />
+          className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-sm text-glacier-primary resize-none input-glow" />
       </div>
 
       <button onClick={handleSave}
-        className="w-full py-2.5 bg-zinc-700 hover:bg-zinc-600 rounded text-sm font-medium">
+        className="w-full py-2.5 bg-glacier-accent hover:opacity-90 disabled:opacity-40 text-glacier-bg rounded text-sm font-medium transition-opacity">
         {saved ? 'Saved ✓' : 'Save Session'}
       </button>
     </div>

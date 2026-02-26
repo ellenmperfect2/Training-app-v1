@@ -1,38 +1,95 @@
 @import "tailwindcss";
 
 :root {
-  --background: #09090b;
-  --foreground: #f4f4f5;
+  --bg:            #0a0f14;
+  --bg-card:       #111820;
+  --bg-card-alt:   #172030;
+  --border:        #1e3040;
+  --border-hover:  #2a4055;
+
+  --text-primary:  #cdd9e5;
+  --text-secondary:#768899;
+  --text-muted:    #3d5060;
+
+  --accent:        #39c5cf;
+  --accent-soft:   #0a2228;
+
+  --success:       #4db885;
+  --success-soft:  #0a2018;
+  --warning:       #c4a84f;
+  --warning-soft:  #201c08;
+  --danger:        #d95f5f;
+  --danger-soft:   #280f0f;
+  --fatigued:      #c47040;
+
+  --zone1:         #4a9fd4;
+  --zone2:         #4db885;
+  --zone3:         #c4a84f;
+  --zone4:         #d4874a;
+  --zone5:         #d95f5f;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-glacier-bg:           var(--bg);
+  --color-glacier-card:         var(--bg-card);
+  --color-glacier-card-alt:     var(--bg-card-alt);
+  --color-glacier-edge:         var(--border);
+  --color-glacier-edge-hover:   var(--border-hover);
+  --color-glacier-primary:      var(--text-primary);
+  --color-glacier-secondary:    var(--text-secondary);
+  --color-glacier-muted:        var(--text-muted);
+  --color-glacier-accent:       var(--accent);
+  --color-glacier-accent-soft:  var(--accent-soft);
+  --color-glacier-success:      var(--success);
+  --color-glacier-success-soft: var(--success-soft);
+  --color-glacier-warning:      var(--warning);
+  --color-glacier-warning-soft: var(--warning-soft);
+  --color-glacier-danger:       var(--danger);
+  --color-glacier-danger-soft:  var(--danger-soft);
+  --color-glacier-fatigued:     var(--fatigued);
+  --color-glacier-zone1:        var(--zone1);
+  --color-glacier-zone2:        var(--zone2);
+  --color-glacier-zone3:        var(--zone3);
+  --color-glacier-zone4:        var(--zone4);
+  --color-glacier-zone5:        var(--zone5);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--text-primary);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
+/* Card hover transition — add to any card div */
+.card-hover {
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.card-hover:hover {
+  background-color: var(--bg-card-alt);
+  border-color: var(--border-hover);
+}
+
+/* Input / select focus glow */
+.input-glow {
+  transition: box-shadow 150ms ease, border-color 150ms ease;
+}
+.input-glow:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px #39c5cf30;
+}
+
+/* Stimulus bars */
 .stimulus-bar {
   height: 8px;
   border-radius: 4px;
-  background: #27272a;
+  background: var(--bg-card-alt);
   overflow: hidden;
 }
 .stimulus-bar-fill {
   height: 100%;
   border-radius: 4px;
   transition: width 0.3s ease;
-}
-.recovery-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  flex-shrink: 0;
 }

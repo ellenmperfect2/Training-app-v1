@@ -87,47 +87,47 @@ export default function UploadModal() {
     <div className="space-y-6">
       {/* Drop zone */}
       <div
-        className="border-2 border-dashed border-zinc-700 rounded-lg p-8 text-center cursor-pointer hover:border-zinc-500 transition-colors"
+        className="border-2 border-dashed border-glacier-edge rounded-lg p-8 text-center cursor-pointer hover:border-glacier-edge-hover transition-colors duration-150"
         onClick={() => fileRef.current?.click()}
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
       >
         {parsing ? (
-          <p className="text-zinc-400 text-sm">Parsing FIT file…</p>
+          <p className="text-glacier-secondary text-sm">Parsing FIT file…</p>
         ) : (
           <>
-            <p className="text-zinc-400 text-sm">Drop a .fit file here, or click to select</p>
-            <p className="text-zinc-600 text-xs mt-1">Garmin / COROS FIT files only</p>
+            <p className="text-glacier-secondary text-sm">Drop a .fit file here, or click to select</p>
+            <p className="text-glacier-muted text-xs mt-1">Garmin / COROS FIT files only</p>
           </>
         )}
         <input ref={fileRef} type="file" accept=".fit" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
       </div>
 
       {error && (
-        <div className="bg-red-900/30 border border-red-800 rounded px-4 py-3 text-sm text-red-300">
+        <div className="bg-glacier-danger-soft border border-glacier-danger rounded px-4 py-3 text-sm text-glacier-danger">
           {error}
         </div>
       )}
 
       {noHrNote && (
-        <div className="bg-zinc-800 border border-zinc-700 rounded px-4 py-2 text-xs text-zinc-400">
+        <div className="bg-glacier-card border border-glacier-edge rounded px-4 py-2 text-xs text-glacier-secondary">
           {noHrNote}
         </div>
       )}
 
       {/* Annotation form */}
       {pending && (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-4">
+        <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-4">
           <div>
-            <div className="font-medium text-sm">{pending.activityType}</div>
-            <div className="text-xs text-zinc-500 mt-0.5">
+            <div className="font-medium text-sm text-glacier-primary">{pending.activityType}</div>
+            <div className="text-xs text-glacier-secondary mt-0.5">
               {pending.session.date}
               {pending.session.duration > 0 && ` · ${Math.round(pending.session.duration / 60)}min`}
               {pending.session.elevationGain > 0 && ` · ${Math.round(pending.session.elevationGain)}ft gain`}
               {pending.session.avgHR && ` · avg HR ${pending.session.avgHR}bpm`}
             </div>
             {pending.session.zoneDistribution && (
-              <div className="text-xs text-zinc-600 mt-1">
+              <div className="text-xs text-glacier-muted mt-1">
                 Z1:{pending.session.zoneDistribution.z1}m · Z2:{pending.session.zoneDistribution.z2}m · Z3:{pending.session.zoneDistribution.z3}m · Z4:{pending.session.zoneDistribution.z4}m · Z5:{pending.session.zoneDistribution.z5}m
               </div>
             )}
@@ -135,7 +135,7 @@ export default function UploadModal() {
 
           {pending.annotationFields.includes('packWeight') && (
             <div>
-              <label className="block text-xs text-zinc-400 mb-2">Pack weight <span className="text-red-400">*</span></label>
+              <label className="block text-xs text-glacier-secondary mb-2">Pack weight <span className="text-glacier-danger">*</span></label>
               <div className="flex gap-2 flex-wrap">
                 {[
                   { value: 'none', label: 'None' },
@@ -146,8 +146,8 @@ export default function UploadModal() {
                   <button key={opt.value} onClick={() => setAnnotation((a) => ({ ...a, packWeight: opt.value }))}
                     className={`px-3 py-1.5 rounded text-sm border transition-colors ${
                       annotation.packWeight === opt.value
-                        ? 'bg-zinc-600 border-zinc-500'
-                        : 'bg-zinc-900 border-zinc-700 text-zinc-400 hover:border-zinc-600'
+                        ? 'bg-glacier-accent border-glacier-accent text-glacier-bg'
+                        : 'bg-glacier-card border-glacier-edge text-glacier-secondary hover:border-glacier-edge-hover'
                     }`}
                   >
                     {opt.label}
@@ -159,14 +159,14 @@ export default function UploadModal() {
 
           {pending.annotationFields.includes('terrain') && (
             <div>
-              <label className="block text-xs text-zinc-400 mb-2">Terrain</label>
+              <label className="block text-xs text-glacier-secondary mb-2">Terrain</label>
               <div className="flex gap-2 flex-wrap">
                 {['road', 'trail', 'mountain', 'off-trail', 'snow'].map((t) => (
                   <button key={t} onClick={() => setAnnotation((a) => ({ ...a, terrain: t }))}
                     className={`px-3 py-1.5 rounded text-sm border transition-colors capitalize ${
                       annotation.terrain === t
-                        ? 'bg-zinc-600 border-zinc-500'
-                        : 'bg-zinc-900 border-zinc-700 text-zinc-400 hover:border-zinc-600'
+                        ? 'bg-glacier-accent border-glacier-accent text-glacier-bg'
+                        : 'bg-glacier-card border-glacier-edge text-glacier-secondary hover:border-glacier-edge-hover'
                     }`}
                   >
                     {t}
@@ -178,12 +178,14 @@ export default function UploadModal() {
 
           {pending.annotationFields.includes('weightsUsed') && (
             <div>
-              <label className="block text-xs text-zinc-400 mb-2">Were weights used? (e.g. weighted vest, pack)</label>
+              <label className="block text-xs text-glacier-secondary mb-2">Were weights used? (e.g. weighted vest, pack)</label>
               <div className="flex gap-2">
                 {['true', 'false'].map((v) => (
                   <button key={v} onClick={() => setAnnotation((a) => ({ ...a, weightsUsed: v }))}
                     className={`px-3 py-1.5 rounded text-sm border transition-colors ${
-                      annotation.weightsUsed === v ? 'bg-zinc-600 border-zinc-500' : 'bg-zinc-900 border-zinc-700 text-zinc-400'
+                      annotation.weightsUsed === v
+                        ? 'bg-glacier-accent border-glacier-accent text-glacier-bg'
+                        : 'bg-glacier-card border-glacier-edge text-glacier-secondary'
                     }`}
                   >
                     {v === 'true' ? 'Yes' : 'No'}
@@ -195,14 +197,14 @@ export default function UploadModal() {
 
           {pending.annotationFields.includes('perceivedEffort') && (
             <div>
-              <label className="block text-xs text-zinc-400 mb-2">Perceived effort (1–10)</label>
+              <label className="block text-xs text-glacier-secondary mb-2">Perceived effort (1–10)</label>
               <div className="flex gap-1 flex-wrap">
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
                   <button key={n} onClick={() => setAnnotation((a) => ({ ...a, perceivedEffort: String(n) }))}
                     className={`w-8 h-8 rounded text-sm font-medium transition-colors ${
                       annotation.perceivedEffort === String(n)
-                        ? 'bg-zinc-600 text-zinc-100'
-                        : 'bg-zinc-900 border border-zinc-700 text-zinc-500'
+                        ? 'bg-glacier-accent text-glacier-bg'
+                        : 'bg-glacier-card border border-glacier-edge text-glacier-secondary'
                     }`}
                   >
                     {n}
@@ -213,30 +215,30 @@ export default function UploadModal() {
           )}
 
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Notes (optional)</label>
+            <label className="block text-xs text-glacier-secondary mb-1">Notes (optional)</label>
             <textarea value={annotation.notes ?? ''} onChange={(e) => setAnnotation((a) => ({ ...a, notes: e.target.value }))}
-              rows={2} className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-sm resize-none" />
+              rows={2} className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-sm text-glacier-primary resize-none input-glow" />
           </div>
 
           <button onClick={handleSave}
-            className="w-full py-2.5 bg-zinc-700 hover:bg-zinc-600 rounded text-sm font-medium">
+            className="w-full py-2.5 bg-glacier-accent hover:opacity-90 text-glacier-bg rounded text-sm font-medium transition-opacity">
             Save to Log
           </button>
         </div>
       )}
 
       {saved && (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+        <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-green-400">Saved: {savedFilename}</div>
+            <div className="text-sm text-glacier-success">Saved: {savedFilename}</div>
             {savedSummary && (
               <span
                 className={`text-xs font-medium px-2 py-0.5 rounded ${
                   savedSummary.level === 'high'
-                    ? 'bg-amber-900/40 text-amber-400'
+                    ? 'bg-glacier-warning-soft text-glacier-warning'
                     : savedSummary.level === 'medium'
-                    ? 'bg-sky-900/40 text-sky-400'
-                    : 'bg-zinc-800 text-zinc-400'
+                    ? 'bg-glacier-accent-soft text-glacier-accent'
+                    : 'bg-glacier-card-alt text-glacier-secondary'
                 }`}
               >
                 {savedSummary.level} load
@@ -245,19 +247,19 @@ export default function UploadModal() {
           </div>
 
           {savedSummary?.dominantGroup && (
-            <div className="text-xs text-zinc-500">Dominant: {savedSummary.dominantGroup}</div>
+            <div className="text-xs text-glacier-secondary">Dominant: {savedSummary.dominantGroup}</div>
           )}
 
           {savedSummary && (
             <div>
               <button
                 onClick={() => setLoadDetailOpen((o) => !o)}
-                className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors flex items-center gap-1"
+                className="text-xs text-glacier-muted hover:text-glacier-secondary transition-colors flex items-center gap-1"
               >
-                What drove this? <span className="text-zinc-700">{loadDetailOpen ? '▲' : '▼'}</span>
+                What drove this? <span className="text-glacier-muted">{loadDetailOpen ? '▲' : '▼'}</span>
               </button>
               {loadDetailOpen && (
-                <div className="mt-2 space-y-1 text-xs text-zinc-500 border-l border-zinc-800 pl-3">
+                <div className="mt-2 space-y-1 text-xs text-glacier-secondary border-l border-glacier-edge pl-3">
                   {savedSummary.factors.map((f, i) => <div key={i}>{f}</div>)}
                 </div>
               )}

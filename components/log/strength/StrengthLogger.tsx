@@ -151,19 +151,19 @@ export default function StrengthLogger() {
     <div className="space-y-6">
       {/* Date */}
       <div>
-        <label className="block text-xs text-zinc-400 mb-1">Date</label>
+        <label className="block text-xs text-glacier-secondary mb-1">Date</label>
         <input
           type="date"
           value={date}
           max={today()}
           onChange={(e) => setDate(e.target.value)}
-          className="bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-sm"
+          className="bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-sm text-glacier-primary input-glow"
         />
       </div>
 
       {/* Template picker */}
       <div>
-        <label className="block text-xs text-zinc-400 mb-2">Template</label>
+        <label className="block text-xs text-glacier-secondary mb-2">Template</label>
         <div className="flex flex-wrap gap-2">
           {templates.map((t) => (
             <button
@@ -171,8 +171,8 @@ export default function StrengthLogger() {
               onClick={() => loadTemplate(t.id)}
               className={`px-3 py-1.5 rounded text-sm border transition-colors ${
                 selectedTemplate === t.id
-                  ? 'bg-zinc-600 border-zinc-500'
-                  : 'bg-zinc-900 border-zinc-700 text-zinc-400 hover:border-zinc-600'
+                  ? 'bg-glacier-accent border-glacier-accent text-glacier-bg'
+                  : 'bg-glacier-card border-glacier-edge text-glacier-secondary hover:border-glacier-edge-hover'
               }`}
             >
               {t.name}
@@ -183,10 +183,10 @@ export default function StrengthLogger() {
 
       {/* Add exercise */}
       <div>
-        <label className="block text-xs text-zinc-400 mb-2">Add exercise</label>
+        <label className="block text-xs text-glacier-secondary mb-2">Add exercise</label>
         <select
           onChange={(e) => { if (e.target.value) addExercise(e.target.value); e.target.value = ''; }}
-          className="bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm"
+          className="bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-sm text-glacier-primary input-glow"
           defaultValue=""
         >
           <option value="">Select exercise…</option>
@@ -201,58 +201,58 @@ export default function StrengthLogger() {
         const def = exercises.find((e) => e.id === entry.exerciseId);
         const hasAutoPopulated = entry.sets.some((s) => s.isAutoPopulated);
         return (
-          <div key={exIdx} className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+          <div key={exIdx} className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="font-medium text-sm">{def?.name ?? entry.exerciseId}</span>
+                <span className="font-medium text-sm text-glacier-primary">{def?.name ?? entry.exerciseId}</span>
                 {hasAutoPopulated && (
-                  <span className="text-xs text-zinc-600 bg-zinc-800 px-1.5 py-0.5 rounded">
+                  <span className="text-xs text-glacier-muted bg-glacier-card-alt px-1.5 py-0.5 rounded">
                     last session
                   </span>
                 )}
               </div>
-              <button onClick={() => removeExercise(exIdx)} className="text-zinc-600 hover:text-zinc-400 text-xs">Remove</button>
+              <button onClick={() => removeExercise(exIdx)} className="text-glacier-muted hover:text-glacier-secondary text-xs transition-colors">Remove</button>
             </div>
 
             <div className="space-y-2">
               {entry.sets.map((set, setIdx) => (
                 <div key={setIdx} className="flex items-center gap-2 mt-5">
-                  <span className="text-xs text-zinc-600 w-6">{setIdx + 1}</span>
+                  <span className="text-xs text-glacier-muted w-6">{setIdx + 1}</span>
                   <input
                     type="number"
                     value={set.reps}
                     onChange={(e) => updateSet(exIdx, setIdx, 'reps', e.target.value)}
                     placeholder="reps"
-                    className={`w-16 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm ${
-                      set.isAutoPopulated ? 'text-zinc-400' : ''
+                    className={`w-16 bg-glacier-card-alt border border-glacier-edge rounded px-2 py-1 text-sm input-glow ${
+                      set.isAutoPopulated ? 'text-glacier-secondary' : 'text-glacier-primary'
                     }`}
                   />
-                  <span className="text-zinc-600 text-xs">×</span>
+                  <span className="text-glacier-muted text-xs">×</span>
                   <input
                     type="number"
                     value={set.weight}
                     onChange={(e) => updateSet(exIdx, setIdx, 'weight', e.target.value)}
                     placeholder="lbs"
-                    className={`w-20 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm ${
-                      set.isAutoPopulated ? 'text-zinc-400' : ''
+                    className={`w-20 bg-glacier-card-alt border border-glacier-edge rounded px-2 py-1 text-sm input-glow ${
+                      set.isAutoPopulated ? 'text-glacier-secondary' : 'text-glacier-primary'
                     }`}
                   />
                   <select
                     value={set.unit}
                     onChange={(e) => updateSet(exIdx, setIdx, 'unit', e.target.value)}
-                    className="bg-zinc-800 border border-zinc-700 rounded px-1 py-1 text-xs"
+                    className="bg-glacier-card-alt border border-glacier-edge rounded px-1 py-1 text-xs text-glacier-primary input-glow"
                   >
                     <option value="lbs">lbs</option>
                     <option value="kg">kg</option>
                   </select>
-                  <button onClick={() => removeSet(exIdx, setIdx)} className="text-zinc-700 hover:text-zinc-500 text-xs">✕</button>
+                  <button onClick={() => removeSet(exIdx, setIdx)} className="text-glacier-muted hover:text-glacier-secondary text-xs transition-colors">✕</button>
                 </div>
               ))}
             </div>
 
             <button
               onClick={() => addSet(exIdx)}
-              className="text-xs text-zinc-500 hover:text-zinc-300"
+              className="text-xs text-glacier-secondary hover:text-glacier-primary transition-colors"
             >
               + Add set
             </button>
@@ -262,12 +262,12 @@ export default function StrengthLogger() {
 
       {/* Notes */}
       <div>
-        <label className="block text-xs text-zinc-400 mb-1">Notes (optional)</label>
+        <label className="block text-xs text-glacier-secondary mb-1">Notes (optional)</label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
-          className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm resize-none"
+          className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-sm text-glacier-primary resize-none input-glow"
         />
       </div>
 
@@ -275,7 +275,7 @@ export default function StrengthLogger() {
       <button
         onClick={handleSave}
         disabled={exerciseEntries.length === 0}
-        className="w-full py-2.5 bg-zinc-700 hover:bg-zinc-600 disabled:opacity-40 disabled:cursor-not-allowed rounded text-sm font-medium"
+        className="w-full py-2.5 bg-glacier-accent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-glacier-bg rounded text-sm font-medium transition-opacity"
       >
         {saved ? 'Saved ✓' : 'Save Session'}
       </button>

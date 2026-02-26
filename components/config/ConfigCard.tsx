@@ -29,18 +29,18 @@ export default function ConfigCard({ config }: Props) {
   }
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+    <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3 card-hover">
       <div className="flex items-center justify-between">
-        <div className="text-xs text-zinc-500 uppercase tracking-wider font-medium">Training Config</div>
+        <div className="text-xs text-glacier-secondary uppercase tracking-wider font-medium">Training Config</div>
         {!isDefault && (
-          <span className={`text-xs ${expired ? 'text-red-400' : 'text-zinc-500'}`}>
+          <span className={`text-xs ${expired ? 'text-glacier-danger' : 'text-glacier-muted'}`}>
             {expired ? 'Expired' : `Expires ${config['expires-date']}`}
           </span>
         )}
       </div>
 
       {isDefault ? (
-        <div className="text-xs text-zinc-500">Using default config. Run weekly analysis to get personalized recommendations.</div>
+        <div className="text-xs text-glacier-secondary">Using default config. Run weekly analysis to get personalized recommendations.</div>
       ) : (
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
           <ConfigRow label="Fatigue" value={config['fatigue-state']} />
@@ -57,14 +57,14 @@ export default function ConfigCard({ config }: Props) {
       )}
 
       {config['override-reason'] && !isDefault && (
-        <div className="text-xs text-zinc-600 italic border-t border-zinc-800 pt-2">
+        <div className="text-xs text-glacier-muted italic border-t border-glacier-edge pt-2">
           {config['override-reason']}
         </div>
       )}
 
       <button
         onClick={() => setShowPaste((v) => !v)}
-        className="text-xs text-zinc-400 hover:text-zinc-200 underline"
+        className="text-xs text-glacier-secondary hover:text-glacier-primary underline transition-colors"
       >
         {showPaste ? 'Cancel' : 'Paste analysis response'}
       </button>
@@ -76,11 +76,11 @@ export default function ConfigCard({ config }: Props) {
             onChange={(e) => setPasteInput(e.target.value)}
             rows={6}
             placeholder="Paste the full response from Summit Coach here..."
-            className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-xs font-mono resize-none"
+            className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-xs font-mono resize-none text-glacier-primary input-glow"
           />
           <button
             onClick={handleApplyConfig}
-            className="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 rounded text-sm font-medium"
+            className="px-4 py-2 bg-glacier-accent hover:opacity-90 text-glacier-bg rounded text-sm font-medium transition-opacity"
           >
             Apply Config
           </button>
@@ -88,7 +88,7 @@ export default function ConfigCard({ config }: Props) {
       )}
 
       {result && (
-        <div className={`text-xs rounded px-3 py-2 whitespace-pre-wrap ${result.success ? 'bg-green-900/30 text-green-300' : 'bg-red-900/30 text-red-300'}`}>
+        <div className={`text-xs rounded px-3 py-2 whitespace-pre-wrap ${result.success ? 'bg-glacier-success-soft text-glacier-success' : 'bg-glacier-danger-soft text-glacier-danger'}`}>
           {result.message}
         </div>
       )}
@@ -99,8 +99,8 @@ export default function ConfigCard({ config }: Props) {
 function ConfigRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between">
-      <span className="text-zinc-500">{label}</span>
-      <span className="text-zinc-300">{value}</span>
+      <span className="text-glacier-secondary">{label}</span>
+      <span className="text-glacier-primary">{value}</span>
     </div>
   );
 }

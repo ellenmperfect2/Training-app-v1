@@ -10,9 +10,9 @@ interface Props {
 }
 
 const TIMELINE_COLORS: Record<string, string> = {
-  'on-track': 'text-green-400',
-  'behind': 'text-yellow-400',
-  'ahead': 'text-sky-400',
+  'on-track': 'text-glacier-success',
+  'behind':   'text-glacier-warning',
+  'ahead':    'text-glacier-accent',
 };
 
 export default function ObjectiveCard({ objective, onComplete, onUpdateWeight }: Props) {
@@ -31,44 +31,44 @@ export default function ObjectiveCard({ objective, onComplete, onUpdateWeight }:
   }
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+    <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3 card-hover">
       <div className="flex items-start justify-between">
         <div>
-          <div className="font-medium">{objective.name}</div>
-          <div className="text-xs text-zinc-500 mt-0.5">{objective.type} · {weeksOut} weeks out</div>
+          <div className="font-medium text-glacier-primary">{objective.name}</div>
+          <div className="text-xs text-glacier-secondary mt-0.5">{objective.type} · {weeksOut} weeks out</div>
         </div>
-        <span className={`text-xs font-medium ${TIMELINE_COLORS[timeline] ?? 'text-zinc-400'}`}>
+        <span className={`text-xs font-medium ${TIMELINE_COLORS[timeline] ?? 'text-glacier-secondary'}`}>
           {timeline}
         </span>
       </div>
 
       {/* Priority weight */}
       <div>
-        <label className="block text-xs text-zinc-500 mb-1">Priority weight: {weight}</label>
+        <label className="block text-xs text-glacier-secondary mb-1">Priority weight: {weight}</label>
         <input
           type="range"
           min={1}
           max={10}
           value={weight}
           onChange={(e) => handleWeightChange(parseInt(e.target.value))}
-          className="w-full accent-zinc-400"
+          className="w-full accent-[#39c5cf]"
         />
       </div>
 
       {/* Phase */}
-      <div className="text-xs text-zinc-500">Phase: {objective.currentPhase}</div>
+      <div className="text-xs text-glacier-secondary">Phase: {objective.currentPhase}</div>
 
       {/* Assessments */}
       {objective.assessmentResults.length > 0 && (
         <div className="space-y-1">
-          <div className="text-xs text-zinc-600">Assessments</div>
+          <div className="text-xs text-glacier-muted">Assessments</div>
           {objective.assessmentResults.map((r) => (
             <div key={r.assessmentId} className="flex items-center justify-between text-xs">
-              <span className="text-zinc-400">{r.assessmentId}</span>
+              <span className="text-glacier-secondary">{r.assessmentId}</span>
               <span className={
-                r.result === 'pass' ? 'text-green-400' :
-                r.result === 'miss' ? 'text-red-400' :
-                r.result === 'borderline' ? 'text-yellow-400' : 'text-zinc-600'
+                r.result === 'pass'       ? 'text-glacier-success' :
+                r.result === 'miss'       ? 'text-glacier-danger' :
+                r.result === 'borderline' ? 'text-glacier-warning' : 'text-glacier-muted'
               }>
                 {r.result ?? 'pending'}
               </span>
@@ -78,17 +78,17 @@ export default function ObjectiveCard({ objective, onComplete, onUpdateWeight }:
       )}
 
       {/* Complete */}
-      <div className="pt-1 border-t border-zinc-800">
+      <div className="pt-1 border-t border-glacier-edge">
         {!confirmComplete ? (
           <button onClick={() => setConfirmComplete(true)}
-            className="text-xs text-zinc-600 hover:text-zinc-400">
+            className="text-xs text-glacier-muted hover:text-glacier-secondary transition-colors">
             Mark complete
           </button>
         ) : (
           <div className="flex items-center gap-3">
-            <span className="text-xs text-zinc-400">Archive this objective?</span>
-            <button onClick={onComplete} className="text-xs text-green-400 hover:text-green-300">Yes, archive</button>
-            <button onClick={() => setConfirmComplete(false)} className="text-xs text-zinc-600 hover:text-zinc-400">Cancel</button>
+            <span className="text-xs text-glacier-secondary">Archive this objective?</span>
+            <button onClick={onComplete} className="text-xs text-glacier-success hover:opacity-80 transition-opacity">Yes, archive</button>
+            <button onClick={() => setConfirmComplete(false)} className="text-xs text-glacier-muted hover:text-glacier-secondary transition-colors">Cancel</button>
           </div>
         )}
       </div>

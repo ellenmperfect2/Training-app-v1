@@ -9,11 +9,11 @@ export default function StrengthPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold">Strength Session</h1>
+        <h1 className="text-xl font-semibold text-glacier-primary">Strength Session</h1>
         {!showHistory && (
           <button
             onClick={() => setShowHistory(true)}
-            className="text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="text-sm text-glacier-secondary hover:text-glacier-primary transition-colors"
           >
             View History
           </button>

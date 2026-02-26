@@ -42,7 +42,6 @@ export default function Dashboard() {
     const activeObjectives = getActiveObjectives();
     const storedConfig = getActiveTrainingConfig();
 
-    // Resolve config
     const resolvedConfig: TrainingConfig = storedConfig ?? (defaultConfigData as TrainingConfig);
     setConfig(resolvedConfig);
 
@@ -55,7 +54,6 @@ export default function Dashboard() {
       setConfigExpiringSoon(!expired && storedConfig['expires-date'] <= twoDayStr);
     }
 
-    // Resolve today's check-in (or yesterday's)
     const todayCheckIn = checkIns.find((c) => c.date === today);
     const yesterdayStr = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
     const recentCheckIn = todayCheckIn ?? checkIns.find((c) => c.date === yesterdayStr);
@@ -68,7 +66,6 @@ export default function Dashboard() {
       setNoCheckIn(true);
     }
 
-    // Build recommendation
     const userPreferences = getUserPreferences();
     const rec = buildRecommendation({
       config: resolvedConfig,
@@ -82,7 +79,6 @@ export default function Dashboard() {
     });
     setRecommendation(rec);
 
-    // Compute weekly stimulus
     const { startDate, endDate } = getCurrentWeekDates();
     const stimulus = computeWeeklyStimulus(log, startDate, endDate);
     setStimulusResult(stimulus);
@@ -91,7 +87,7 @@ export default function Dashboard() {
   }, [today]);
 
   if (!loaded) {
-    return <div className="text-zinc-600 text-sm py-8 text-center">Loading...</div>;
+    return <div className="text-glacier-muted text-sm py-8 text-center">Loading...</div>;
   }
 
   const todayCheckIn = getCheckInLog().find((c) => c.date === today);
@@ -100,18 +96,18 @@ export default function Dashboard() {
     <div className="space-y-6">
       {/* Config expiry banners */}
       {configExpired && (
-        <div className="bg-amber-900/40 border border-amber-700 rounded px-4 py-2 text-sm text-amber-200">
+        <div className="bg-glacier-warning-soft border border-glacier-warning rounded px-4 py-2 text-sm text-glacier-primary">
           Training config expired — run weekly analysis to get updated recommendations.
         </div>
       )}
       {configExpiringSoon && !configExpired && (
-        <div className="bg-zinc-800 border border-zinc-700 rounded px-4 py-2 text-sm text-zinc-400">
+        <div className="bg-glacier-card border border-glacier-edge rounded px-4 py-2 text-sm text-glacier-secondary">
           Training config expires in 2 days — consider running weekly analysis.
         </div>
       )}
       {noCheckIn && (
-        <div className="bg-zinc-800 border border-zinc-600 rounded px-4 py-2 text-sm text-zinc-400">
-          No check-in today — <a href="/checkin" className="text-zinc-200 underline">log your morning data</a> for a personalized recommendation.
+        <div className="bg-glacier-card border border-glacier-edge rounded px-4 py-2 text-sm text-glacier-secondary">
+          No check-in today — <a href="/checkin" className="text-glacier-accent underline">log your morning data</a> for a personalized recommendation.
         </div>
       )}
 

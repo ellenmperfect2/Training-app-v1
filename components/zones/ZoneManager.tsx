@@ -13,12 +13,12 @@ import { computeZonesFromAge, computeZonesFromMAF } from '@/lib/zones';
 type Method = 'age-based' | 'maf' | 'custom';
 
 const ZONE_LABELS = ['Z1', 'Z2', 'Z3', 'Z4', 'Z5'];
-const ZONE_COLORS = [
-  'bg-blue-600',
-  'bg-green-600',
-  'bg-yellow-500',
-  'bg-orange-500',
-  'bg-red-600',
+const ZONE_COLORS_CSS = [
+  'var(--zone1)',
+  'var(--zone2)',
+  'var(--zone3)',
+  'var(--zone4)',
+  'var(--zone5)',
 ];
 
 function ZoneStrip({ zones, offset = 0 }: { zones: ZoneThresholds; offset?: number }) {
@@ -30,9 +30,9 @@ function ZoneStrip({ zones, offset = 0 }: { zones: ZoneThresholds; offset?: numb
         const hi = z.high + offset;
         return (
           <div key={i} className="flex items-center gap-3">
-            <span className="text-xs text-zinc-500 w-5">{ZONE_LABELS[i]}</span>
-            <div className={`h-2 rounded flex-shrink-0 w-2 ${ZONE_COLORS[i]}`} />
-            <span className="text-xs text-zinc-300 tabular-nums">
+            <span className="text-xs text-glacier-secondary w-5">{ZONE_LABELS[i]}</span>
+            <div className="h-2 rounded flex-shrink-0 w-2" style={{ background: ZONE_COLORS_CSS[i] }} />
+            <span className="text-xs text-glacier-primary tabular-nums">
               {lo}–{hi} bpm
             </span>
           </div>
@@ -45,13 +45,13 @@ function ZoneStrip({ zones, offset = 0 }: { zones: ZoneThresholds; offset?: numb
 function PreviewTable({ zones, offset = 0 }: { zones: ZoneThresholds; offset?: number }) {
   const entries = [zones.z1, zones.z2, zones.z3, zones.z4, zones.z5];
   return (
-    <div className="bg-zinc-950 rounded px-3 py-2.5 space-y-1">
-      <div className="text-xs text-zinc-600 mb-2">Preview (will save on confirm)</div>
+    <div className="bg-glacier-card-alt rounded px-3 py-2.5 space-y-1">
+      <div className="text-xs text-glacier-muted mb-2">Preview (will save on confirm)</div>
       {entries.map((z, i) => (
         <div key={i} className="flex items-center gap-3">
-          <div className={`w-2 h-2 rounded-sm flex-shrink-0 ${ZONE_COLORS[i]}`} />
-          <span className="text-xs text-zinc-400 w-5">{ZONE_LABELS[i]}</span>
-          <span className="text-xs text-zinc-300 tabular-nums">
+          <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ background: ZONE_COLORS_CSS[i] }} />
+          <span className="text-xs text-glacier-secondary w-5">{ZONE_LABELS[i]}</span>
+          <span className="text-xs text-glacier-primary tabular-nums">
             {z.low + offset}–{z.high + offset} bpm
           </span>
         </div>
@@ -87,7 +87,6 @@ export default function ZoneManager() {
     setTimeout(() => setSaved(false), 1500);
   }
 
-  // Age-based / MAF preview
   useEffect(() => {
     const age = parseInt(ageInput);
     if (!ageInput || isNaN(age) || age < 10 || age > 100) {
@@ -151,44 +150,46 @@ export default function ZoneManager() {
   return (
     <div className="space-y-6">
       {/* Current zones */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+      <section className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3 card-hover">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-zinc-200">Current Zones</h2>
-            <p className="text-xs text-zinc-500 mt-0.5 capitalize">
+            <h2 className="text-sm font-semibold text-glacier-primary">Current Zones</h2>
+            <p className="text-xs text-glacier-secondary mt-0.5 capitalize">
               Method: {zones.method.replace('-', ' ')}
               {zones.age ? ` · Age ${zones.age}` : ''}
               {mafNumber ? ` · MAF ${mafNumber} bpm` : ''}
               {zones.lastUpdated ? ` · Updated ${zones.lastUpdated}` : ' · Default zones'}
             </p>
           </div>
-          {saved && <span className="text-xs text-green-400">Saved</span>}
+          {saved && <span className="text-xs text-glacier-success">Saved</span>}
         </div>
 
         <ZoneStrip zones={zones.activeZones} offset={offset} />
 
         {offset !== 0 && (
-          <p className="text-xs text-zinc-600">
+          <p className="text-xs text-glacier-muted">
             HR calibration offset {offset > 0 ? '+' : ''}{offset} bpm applied to display.
           </p>
         )}
       </section>
 
       {/* Method selector */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-4">
+      <section className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-4 card-hover">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-200">Update Zones</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">Choose a calculation method.</p>
+          <h2 className="text-sm font-semibold text-glacier-primary">Update Zones</h2>
+          <p className="text-xs text-glacier-secondary mt-0.5">Choose a calculation method.</p>
         </div>
 
         {/* Three-position toggle */}
-        <div className="flex rounded border border-zinc-700 overflow-hidden text-sm">
+        <div className="flex rounded border border-glacier-edge overflow-hidden text-sm">
           {(['age-based', 'maf', 'custom'] as Method[]).map((m) => (
             <button
               key={m}
               onClick={() => { setMethod(m); setPreview(null); }}
               className={`flex-1 py-2 text-center transition-colors capitalize ${
-                method === m ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+                method === m
+                  ? 'bg-glacier-accent text-glacier-bg font-semibold'
+                  : 'text-glacier-secondary hover:text-glacier-primary hover:bg-glacier-card'
               }`}
             >
               {m === 'age-based' ? 'Age-Based' : m === 'maf' ? 'MAF Method' : 'Custom'}
@@ -199,7 +200,7 @@ export default function ZoneManager() {
         {/* Age-Based panel */}
         {method === 'age-based' && (
           <div className="space-y-3">
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-glacier-secondary">
               Calculates zones as percentages of max HR (220 − age). Standard 5-zone model.
             </p>
             <div className="flex gap-2 items-center">
@@ -209,16 +210,16 @@ export default function ZoneManager() {
                 value={ageInput}
                 onChange={(e) => setAgeInput(e.target.value)}
                 placeholder="Age"
-                className="w-24 bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-zinc-500"
+                className="w-24 bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-sm text-glacier-primary input-glow"
               />
-              <span className="text-xs text-zinc-500">years old</span>
+              <span className="text-xs text-glacier-secondary">years old</span>
             </div>
             {preview && (
               <>
                 <PreviewTable zones={preview} offset={offset} />
                 <button
                   onClick={handleAgeConfirm}
-                  className="w-full py-2 bg-zinc-700 hover:bg-zinc-600 rounded text-sm font-medium transition-colors"
+                  className="w-full py-2 bg-glacier-accent hover:opacity-90 text-glacier-bg rounded text-sm font-medium transition-opacity"
                 >
                   Save These Zones
                 </button>
@@ -230,7 +231,7 @@ export default function ZoneManager() {
         {/* MAF Method panel */}
         {method === 'maf' && (
           <div className="space-y-3">
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-glacier-secondary">
               MAF sets your aerobic ceiling at (180 − age) bpm. Recommended for aerobic base building phases.
               {ageInput && !isNaN(parseInt(ageInput)) && ` With your age, MAF = ${180 - parseInt(ageInput)} bpm.`}
             </p>
@@ -241,16 +242,16 @@ export default function ZoneManager() {
                 value={ageInput}
                 onChange={(e) => setAgeInput(e.target.value)}
                 placeholder="Age"
-                className="w-24 bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-zinc-500"
+                className="w-24 bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-sm text-glacier-primary input-glow"
               />
-              <span className="text-xs text-zinc-500">years old</span>
+              <span className="text-xs text-glacier-secondary">years old</span>
             </div>
             {preview && (
               <>
                 <PreviewTable zones={preview} offset={offset} />
                 <button
                   onClick={handleAgeConfirm}
-                  className="w-full py-2 bg-zinc-700 hover:bg-zinc-600 rounded text-sm font-medium transition-colors"
+                  className="w-full py-2 bg-glacier-accent hover:opacity-90 text-glacier-bg rounded text-sm font-medium transition-opacity"
                 >
                   Save These Zones
                 </button>
@@ -262,7 +263,7 @@ export default function ZoneManager() {
         {/* Custom panel */}
         {method === 'custom' && (
           <div className="space-y-3">
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-glacier-secondary">
               Enter results from a field test or lab test. Enter the ceiling of each zone (Z5 is above Z4 ceiling).
             </p>
             <div className="grid grid-cols-2 gap-2">
@@ -273,22 +274,22 @@ export default function ZoneManager() {
                 { key: 'z4', label: 'Z4 ceiling' },
               ].map(({ key, label }) => (
                 <div key={key}>
-                  <label className="block text-xs text-zinc-500 mb-1">{label} (bpm)</label>
+                  <label className="block text-xs text-glacier-secondary mb-1">{label} (bpm)</label>
                   <input
                     type="number"
                     value={customInputs[key as keyof typeof customInputs]}
                     onChange={(e) => setCustomInputs((prev) => ({ ...prev, [key]: e.target.value }))}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-zinc-500"
+                    className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-sm text-glacier-primary input-glow"
                   />
                 </div>
               ))}
             </div>
             {customError && (
-              <p className="text-xs text-red-400">{customError}</p>
+              <p className="text-xs text-glacier-danger">{customError}</p>
             )}
             <button
               onClick={handleCustomConfirm}
-              className="w-full py-2 bg-zinc-700 hover:bg-zinc-600 rounded text-sm font-medium transition-colors"
+              className="w-full py-2 bg-glacier-accent hover:opacity-90 text-glacier-bg rounded text-sm font-medium transition-opacity"
             >
               Save These Zones
             </button>

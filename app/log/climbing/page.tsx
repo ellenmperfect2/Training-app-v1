@@ -5,7 +5,7 @@ export default function ClimbingPage() {
   return (
     <div className="space-y-10">
       <div>
-        <h1 className="text-xl font-semibold mb-6">Climbing Session</h1>
+        <h1 className="text-xl font-semibold text-glacier-primary mb-6">Climbing Session</h1>
         <ClimbingLogger />
       </div>
     </div>

@@ -35,7 +35,6 @@ export default function StrengthHistory({ onClose }: Props) {
     field: 'reps' | 'weight',
     rawValue: string
   ) {
-    // Update local state immediately
     setSessions((prev) =>
       prev.map((s) => {
         if (s.id !== sessionId) return s;
@@ -58,7 +57,6 @@ export default function StrengthHistory({ onClose }: Props) {
       })
     );
 
-    // Write to localStorage immediately
     const log = getWorkoutLog();
     const logSession = log.strength.find((s) => s.id === sessionId);
     if (!logSession) return;
@@ -73,10 +71,10 @@ export default function StrengthHistory({ onClose }: Props) {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-3 mb-2">
-          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-200 text-sm">← Back</button>
-          <span className="text-sm font-medium text-zinc-300">Workout History</span>
+          <button onClick={onClose} className="text-glacier-secondary hover:text-glacier-primary text-sm transition-colors">← Back</button>
+          <span className="text-sm font-medium text-glacier-primary">Workout History</span>
         </div>
-        <div className="text-zinc-500 text-sm">No strength sessions logged yet.</div>
+        <div className="text-glacier-secondary text-sm">No strength sessions logged yet.</div>
       </div>
     );
   }
@@ -84,9 +82,9 @@ export default function StrengthHistory({ onClose }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 mb-2">
-        <button onClick={onClose} className="text-zinc-400 hover:text-zinc-200 text-sm">← Back</button>
-        <span className="text-sm font-medium text-zinc-300">Workout History</span>
-        <span className="text-xs text-zinc-600">({sessions.length} sessions)</span>
+        <button onClick={onClose} className="text-glacier-secondary hover:text-glacier-primary text-sm transition-colors">← Back</button>
+        <span className="text-sm font-medium text-glacier-primary">Workout History</span>
+        <span className="text-xs text-glacier-muted">({sessions.length} sessions)</span>
       </div>
 
       {sessions.map((session) => {
@@ -96,49 +94,47 @@ export default function StrengthHistory({ onClose }: Props) {
         const summary = `${session.exercises.length} exercise${session.exercises.length !== 1 ? 's' : ''} · ${totalSets} sets`;
 
         return (
-          <div key={session.id} className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
-            {/* Session header — click to expand */}
+          <div key={session.id} className="bg-glacier-card border border-glacier-edge rounded-lg overflow-hidden card-hover">
             <button
               onClick={() => toggleExpand(session.id)}
-              className="w-full text-left px-4 py-3 flex items-center justify-between hover:bg-zinc-800/50 transition-colors"
+              className="w-full text-left px-4 py-3 flex items-center justify-between hover:bg-glacier-card-alt transition-colors duration-150"
             >
               <div>
-                <div className="text-sm font-medium">{session.date}</div>
-                <div className="text-xs text-zinc-500 mt-0.5">
+                <div className="text-sm font-medium text-glacier-primary">{session.date}</div>
+                <div className="text-xs text-glacier-secondary mt-0.5">
                   {template?.name ?? 'Custom'} · {summary}
                 </div>
               </div>
-              <span className="text-zinc-600 text-xs ml-4">{isExpanded ? '▲' : '▼'}</span>
+              <span className="text-glacier-muted text-xs ml-4">{isExpanded ? '▲' : '▼'}</span>
             </button>
 
-            {/* Expanded detail */}
             {isExpanded && (
-              <div className="border-t border-zinc-800 px-4 py-3 space-y-4">
+              <div className="border-t border-glacier-edge px-4 py-3 space-y-4">
                 {session.exercises.map((ex, exIdx) => {
                   const def = exercises.find((e) => e.id === ex.exerciseId);
                   return (
                     <div key={exIdx} className="space-y-2">
-                      <div className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
+                      <div className="text-xs font-medium text-glacier-secondary uppercase tracking-wide">
                         {def?.name ?? ex.exerciseId}
                       </div>
                       <div className="space-y-1.5">
                         {ex.sets.map((set, setIdx) => (
                           <div key={setIdx} className="flex items-center gap-2">
-                            <span className="text-xs text-zinc-600 w-5">{set.setNumber}</span>
+                            <span className="text-xs text-glacier-muted w-5">{set.setNumber}</span>
                             <input
                               type="number"
                               defaultValue={set.reps}
                               onBlur={(e) => updateSetValue(session.id, exIdx, setIdx, 'reps', e.target.value)}
-                              className="w-14 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs"
+                              className="w-14 bg-glacier-card-alt border border-glacier-edge rounded px-2 py-1 text-xs text-glacier-primary input-glow"
                             />
-                            <span className="text-zinc-600 text-xs">reps ×</span>
+                            <span className="text-glacier-muted text-xs">reps ×</span>
                             <input
                               type="number"
                               defaultValue={set.weight}
                               onBlur={(e) => updateSetValue(session.id, exIdx, setIdx, 'weight', e.target.value)}
-                              className="w-16 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs"
+                              className="w-16 bg-glacier-card-alt border border-glacier-edge rounded px-2 py-1 text-xs text-glacier-primary input-glow"
                             />
-                            <span className="text-xs text-zinc-500">{set.unit}</span>
+                            <span className="text-xs text-glacier-secondary">{set.unit}</span>
                           </div>
                         ))}
                       </div>
@@ -147,7 +143,7 @@ export default function StrengthHistory({ onClose }: Props) {
                 })}
 
                 {session.notes && (
-                  <div className="text-xs text-zinc-500 border-t border-zinc-800 pt-2 mt-2">
+                  <div className="text-xs text-glacier-secondary border-t border-glacier-edge pt-2 mt-2">
                     {session.notes}
                   </div>
                 )}

@@ -14,12 +14,12 @@ const GROUPS: { key: keyof StimulusMap; label: string }[] = [
 ];
 
 const LEVEL_COLORS: Record<string, string> = {
-  low: 'bg-zinc-600',
-  medium: 'bg-sky-700',
-  high: 'bg-amber-600',
+  low:    'bg-glacier-secondary',
+  medium: 'bg-glacier-accent',
+  high:   'bg-glacier-warning',
 };
 
-const MAX_FILL = 6; // raw value that = 100% bar fill
+const MAX_FILL = 6;
 
 interface Props {
   stimulus: StimulusResult;
@@ -29,8 +29,8 @@ export default function StimulusDisplay({ stimulus }: Props) {
   const [expandedKey, setExpandedKey] = useState<keyof StimulusMap | null>(null);
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
-      <div className="text-xs text-zinc-500 uppercase tracking-wider font-medium">
+    <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3 card-hover">
+      <div className="text-xs text-glacier-secondary uppercase tracking-wider font-medium">
         Weekly Stimulus
       </div>
 
@@ -49,7 +49,7 @@ export default function StimulusDisplay({ stimulus }: Props) {
                 onClick={() => setExpandedKey(isExpanded ? null : key)}
                 title="Click for details"
               >
-                <span className="text-xs text-zinc-400 w-32 shrink-0">{label}</span>
+                <span className="text-xs text-glacier-secondary w-32 shrink-0">{label}</span>
                 <div className="flex-1 stimulus-bar">
                   <div
                     className={`stimulus-bar-fill ${LEVEL_COLORS[level]}`}
@@ -58,21 +58,21 @@ export default function StimulusDisplay({ stimulus }: Props) {
                 </div>
                 <span
                   className={`text-xs w-12 shrink-0 ${
-                    level === 'high' ? 'text-amber-400' : 'text-zinc-500'
+                    level === 'high' ? 'text-glacier-warning' : 'text-glacier-secondary'
                   }`}
                 >
                   {level}
                 </span>
-                <span className="text-zinc-700 text-xs w-3 shrink-0">{isExpanded ? '▲' : '▼'}</span>
+                <span className="text-glacier-muted text-xs w-3 shrink-0">{isExpanded ? '▲' : '▼'}</span>
               </div>
 
               {isExpanded && context && (
-                <div className="ml-32 pl-3 pb-2 text-xs space-y-1.5 border-l border-zinc-800">
-                  <div className="text-zinc-600">{context.baseline}</div>
+                <div className="ml-32 pl-3 pb-2 text-xs space-y-1.5 border-l border-glacier-edge">
+                  <div className="text-glacier-muted">{context.baseline}</div>
                   {context.contributors.map((c, i) => (
-                    <div key={i} className="text-zinc-500">{c}</div>
+                    <div key={i} className="text-glacier-secondary">{c}</div>
                   ))}
-                  <div className="text-zinc-400 mt-1">{context.implication}</div>
+                  <div className="text-glacier-primary mt-1">{context.implication}</div>
                 </div>
               )}
             </div>
@@ -83,7 +83,7 @@ export default function StimulusDisplay({ stimulus }: Props) {
       {stimulus.flags.length > 0 && (
         <div className="space-y-1">
           {stimulus.flags.map((flag, i) => (
-            <div key={i} className="text-xs text-amber-400">{flag}</div>
+            <div key={i} className="text-xs text-glacier-warning">{flag}</div>
           ))}
         </div>
       )}

@@ -60,7 +60,6 @@ export default function PasteWorkflowButtons() {
     }
     const { spec } = parsed;
 
-    // Check for id collision
     const existing = objectiveLibrary as Array<{ id: string }>;
     if (existing.some((e) => e.id === spec.meta.id)) {
       setResult({ success: false, message: `ID collision: "${spec.meta.id}" already exists in the objective library. This is a Claude Code operation — paste the spec into your terminal session.` });
@@ -82,25 +81,25 @@ export default function PasteWorkflowButtons() {
   }
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
-      <div className="text-xs text-zinc-500 uppercase tracking-wider font-medium">Claude.ai Workflows</div>
+    <div className="bg-glacier-card border border-glacier-edge rounded-lg p-4 space-y-3 card-hover">
+      <div className="text-xs text-glacier-secondary uppercase tracking-wider font-medium">Claude.ai Workflows</div>
 
       <div className="flex flex-wrap gap-2">
         <button
           onClick={generateAnalysisPrompt}
-          className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded text-sm transition-colors"
+          className="px-3 py-1.5 bg-glacier-card-alt hover:bg-glacier-card border border-glacier-edge rounded text-sm text-glacier-secondary hover:text-glacier-primary transition-colors"
         >
           Generate Weekly Analysis Prompt
         </button>
         <button
           onClick={() => setMode('objective-prompt')}
-          className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded text-sm transition-colors"
+          className="px-3 py-1.5 bg-glacier-card-alt hover:bg-glacier-card border border-glacier-edge rounded text-sm text-glacier-secondary hover:text-glacier-primary transition-colors"
         >
           Generate Objective Spec Prompt
         </button>
         <button
           onClick={() => setMode('objective-paste')}
-          className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded text-sm transition-colors"
+          className="px-3 py-1.5 bg-glacier-card-alt hover:bg-glacier-card border border-glacier-edge rounded text-sm text-glacier-secondary hover:text-glacier-primary transition-colors"
         >
           Paste Objective Spec
         </button>
@@ -110,8 +109,8 @@ export default function PasteWorkflowButtons() {
       {mode === 'analysis-prompt' && generated && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-zinc-400">Copy and paste into Summit Coach:</span>
-            <button onClick={copyToClipboard} className="text-xs text-sky-400 hover:text-sky-300">
+            <span className="text-xs text-glacier-secondary">Copy and paste into Summit Coach:</span>
+            <button onClick={copyToClipboard} className="text-xs text-glacier-accent hover:opacity-80 transition-opacity">
               {copied ? 'Copied ✓' : 'Copy'}
             </button>
           </div>
@@ -119,31 +118,31 @@ export default function PasteWorkflowButtons() {
             readOnly
             value={generated}
             rows={10}
-            className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-xs font-mono resize-none"
+            className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-xs font-mono resize-none text-glacier-primary input-glow"
           />
-          <button onClick={close} className="text-xs text-zinc-500 hover:text-zinc-300">Close</button>
+          <button onClick={close} className="text-xs text-glacier-muted hover:text-glacier-secondary transition-colors">Close</button>
         </div>
       )}
 
       {/* Objective spec prompt */}
       {mode === 'objective-prompt' && !generated && (
         <div className="space-y-2">
-          <label className="block text-xs text-zinc-400">Describe your objective:</label>
+          <label className="block text-xs text-glacier-secondary">Describe your objective:</label>
           <textarea
             value={objectiveDescription}
             onChange={(e) => setObjectiveDescription(e.target.value)}
             rows={4}
             placeholder="e.g. 5-day alpine traverse, ~3000ft/day gain, 40lb pack, max altitude 11000ft..."
-            className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-sm resize-none"
+            className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-sm text-glacier-primary resize-none input-glow"
           />
           <div className="flex gap-2">
             <button
               onClick={generateObjPrompt}
-              className="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 rounded text-sm"
+              className="px-3 py-1.5 bg-glacier-accent hover:opacity-90 text-glacier-bg rounded text-sm font-medium transition-opacity"
             >
               Generate Prompt
             </button>
-            <button onClick={close} className="text-xs text-zinc-500 hover:text-zinc-300 px-2">Cancel</button>
+            <button onClick={close} className="text-xs text-glacier-muted hover:text-glacier-secondary px-2 transition-colors">Cancel</button>
           </div>
         </div>
       )}
@@ -151,8 +150,8 @@ export default function PasteWorkflowButtons() {
       {mode === 'objective-prompt' && generated && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-zinc-400">Copy and paste into Summit Coach:</span>
-            <button onClick={copyToClipboard} className="text-xs text-sky-400 hover:text-sky-300">
+            <span className="text-xs text-glacier-secondary">Copy and paste into Summit Coach:</span>
+            <button onClick={copyToClipboard} className="text-xs text-glacier-accent hover:opacity-80 transition-opacity">
               {copied ? 'Copied ✓' : 'Copy'}
             </button>
           </div>
@@ -160,36 +159,36 @@ export default function PasteWorkflowButtons() {
             readOnly
             value={generated}
             rows={10}
-            className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-xs font-mono resize-none"
+            className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-xs font-mono resize-none text-glacier-primary input-glow"
           />
-          <button onClick={close} className="text-xs text-zinc-500 hover:text-zinc-300">Close</button>
+          <button onClick={close} className="text-xs text-glacier-muted hover:text-glacier-secondary transition-colors">Close</button>
         </div>
       )}
 
       {/* Objective spec paste */}
       {mode === 'objective-paste' && (
         <div className="space-y-2">
-          <label className="block text-xs text-zinc-400">Paste the objective spec response from Summit Coach:</label>
+          <label className="block text-xs text-glacier-secondary">Paste the objective spec response from Summit Coach:</label>
           <textarea
             value={pasteInput}
             onChange={(e) => setPasteInput(e.target.value)}
             rows={8}
-            className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-xs font-mono resize-none"
+            className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-3 py-2 text-xs font-mono resize-none text-glacier-primary input-glow"
           />
           <div className="flex gap-2">
             <button
               onClick={handleObjectivePaste}
-              className="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 rounded text-sm"
+              className="px-3 py-1.5 bg-glacier-accent hover:opacity-90 text-glacier-bg rounded text-sm font-medium transition-opacity"
             >
               Validate &amp; Preview
             </button>
-            <button onClick={close} className="text-xs text-zinc-500 hover:text-zinc-300 px-2">Cancel</button>
+            <button onClick={close} className="text-xs text-glacier-muted hover:text-glacier-secondary px-2 transition-colors">Cancel</button>
           </div>
         </div>
       )}
 
       {result && (
-        <div className={`text-xs rounded px-3 py-2 whitespace-pre-wrap ${result.success ? 'bg-green-900/30 text-green-300' : 'bg-zinc-800 text-zinc-300'}`}>
+        <div className={`text-xs rounded px-3 py-2 whitespace-pre-wrap ${result.success ? 'bg-glacier-success-soft text-glacier-success' : 'bg-glacier-card-alt text-glacier-primary'}`}>
           {result.message}
         </div>
       )}
