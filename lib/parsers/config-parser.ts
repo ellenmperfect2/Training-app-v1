@@ -34,31 +34,31 @@ type SchemaKey = keyof typeof SCHEMA_FIELDS;
 
 // ── Sub-block schemas ────────────────────────────────────────────────────────
 
-const CARDIO_TARGET_SCHEMA = {
-  'direction': { type: 'enum', values: ['increase', 'decrease', 'hold'] as const },
+const CARDIO_TARGET_SCHEMA: Record<string, SubFieldSchema> = {
+  'direction': { type: 'enum', values: ['increase', 'decrease', 'hold'] },
   'sessions': { type: 'number', min: 0, max: 14 },
-  'primary-zone': { type: 'enum', values: ['z1-2', 'z3', 'z4-5'] as const },
+  'primary-zone': { type: 'enum', values: ['z1-2', 'z3', 'z4-5'] },
   'session-duration-hours': { type: 'number', min: 0, max: 6 },
   'note': { type: 'string', maxLength: 120 },
 };
 
-const STRENGTH_TARGET_SCHEMA = {
-  'direction': { type: 'enum', values: ['increase', 'decrease', 'hold'] as const },
+const STRENGTH_TARGET_SCHEMA: Record<string, SubFieldSchema> = {
+  'direction': { type: 'enum', values: ['increase', 'decrease', 'hold'] },
   'sessions': { type: 'number', min: 0, max: 7 },
   'primary-focus': {
     type: 'enum',
-    values: ['posterior-chain', 'single-leg', 'push', 'pull', 'core', 'full-body'] as const,
+    values: ['posterior-chain', 'single-leg', 'push', 'pull', 'core', 'full-body'],
   },
-  'rep-scheme': { type: 'enum', values: ['strength', 'hypertrophy', 'endurance'] as const },
+  'rep-scheme': { type: 'enum', values: ['strength', 'hypertrophy', 'endurance'] },
   'note': { type: 'string', maxLength: 120 },
 };
 
-const CLIMBING_TARGET_SCHEMA = {
-  'direction': { type: 'enum', values: ['increase', 'decrease', 'hold'] as const },
+const CLIMBING_TARGET_SCHEMA: Record<string, SubFieldSchema> = {
+  'direction': { type: 'enum', values: ['increase', 'decrease', 'hold'] },
   'sessions': { type: 'number', min: 0, max: 7 },
   'primary-focus': {
     type: 'enum',
-    values: ['endurance', 'power-endurance', 'projecting', 'conditioning', 'rest'] as const,
+    values: ['endurance', 'power-endurance', 'projecting', 'conditioning', 'rest'],
   },
   'note': { type: 'string', maxLength: 120 },
 };
