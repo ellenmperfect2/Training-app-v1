@@ -2,6 +2,7 @@
 import { useState, useRef } from 'react';
 import { parseCorosCsv, getAnnotationRequirements } from '@/lib/parsers/csv-parser';
 import { appendCardioSession, type ParsedCorosSession } from '@/lib/storage';
+import { getCardioSessionStimulusSummary, type CardioSessionSummary } from '@/lib/stimulus-engine';
 
 type ParsedPending = Awaited<ReturnType<typeof parseCorosCsv>> & { success: true };
 
@@ -40,6 +41,8 @@ export default function UploadModal() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
   const [savedFiles, setSavedFiles] = useState<string[]>([]);
+  const [savedSummary, setSavedSummary] = useState<CardioSessionSummary | null>(null);
+  const [loadDetailOpen, setLoadDetailOpen] = useState(false);
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -94,7 +97,10 @@ export default function UploadModal() {
     };
 
     appendCardioSession(session);
+    const summary = getCardioSessionStimulusSummary(session);
+    setSavedSummary(summary);
     setSavedFiles((prev) => [...prev, pending.session.filename]);
+    setLoadDetailOpen(false);
     setPending(null);
     setAnnotation({});
     setSaved(true);
@@ -229,8 +235,48 @@ export default function UploadModal() {
       )}
 
       {saved && savedFiles.length > 0 && (
-        <div className="text-sm text-green-400">
-          Saved: {savedFiles[savedFiles.length - 1]}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-green-400">Saved: {savedFiles[savedFiles.length - 1]}</div>
+            {savedSummary && (
+              <span
+                className={`text-xs font-medium px-2 py-0.5 rounded ${
+                  savedSummary.level === 'high'
+                    ? 'bg-amber-900/40 text-amber-400'
+                    : savedSummary.level === 'medium'
+                    ? 'bg-sky-900/40 text-sky-400'
+                    : 'bg-zinc-800 text-zinc-400'
+                }`}
+              >
+                {savedSummary.level} load
+              </span>
+            )}
+          </div>
+
+          {savedSummary && savedSummary.dominantGroup && (
+            <div className="text-xs text-zinc-500">
+              Dominant: {savedSummary.dominantGroup}
+            </div>
+          )}
+
+          {savedSummary && (
+            <div>
+              <button
+                onClick={() => setLoadDetailOpen((o) => !o)}
+                className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors flex items-center gap-1"
+              >
+                What drove this? <span className="text-zinc-700">{loadDetailOpen ? '▲' : '▼'}</span>
+              </button>
+
+              {loadDetailOpen && (
+                <div className="mt-2 space-y-1 text-xs text-zinc-500 border-l border-zinc-800 pl-3">
+                  {savedSummary.factors.map((f, i) => (
+                    <div key={i}>{f}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

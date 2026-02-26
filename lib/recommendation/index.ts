@@ -8,12 +8,14 @@ import type {
   WorkoutLog,
   ActivatedObjective,
 } from '../storage';
+import type { ClassificationDetail } from '../recovery';
 import { getMandatoryRestGroups } from '../stimulus-engine';
 import type { StimulusMap } from '../storage';
 import exerciseLibrary from '../../data/exercise-library.json';
 
 export interface RecommendationCard {
   title: string;
+  parameters: string;
   exercises: ExerciseRecommendation[];
   activityDescription: string | null;
   recoveryState: RecoveryClassification;
@@ -62,8 +64,9 @@ export function buildRecommendation(params: {
     keyWorkouts: string[];
     notes: string;
   } | null;
+  recoveryDetail?: ClassificationDetail | null;
 }): RecommendationCard {
-  const { config: rawConfig, recovery, log, activeObjectives, today, planWeek } = params;
+  const { config: rawConfig, recovery, log, activeObjectives, today, planWeek, recoveryDetail } = params;
 
   // Step 2: Resolve config
   const config = rawConfig ?? DEFAULT_CONFIG;
@@ -106,8 +109,14 @@ export function buildRecommendation(params: {
     card.recoveryNote = noCheckInWarning;
   }
 
+  // Override whyNote with data-specific version
+  card.whyNote = buildDataWhyNote(finalRecovery, recoveryDetail, config, activeObjectives, usingDefault);
+
+  // Override configInfluenceNote
   if (usingDefault) {
-    card.configInfluenceNote = 'Using default config — run weekly analysis for personalized recommendations.';
+    card.configInfluenceNote = 'No active config — using baseline logic.';
+  } else {
+    card.configInfluenceNote = buildConfigNote(config, finalRecovery);
   }
 
   return card;
@@ -126,6 +135,92 @@ function resolveRecentRecovery(
   return null;
 }
 
+// ── Why note builder ───────────────────────────────────────────────────────
+
+function buildDataWhyNote(
+  recovery: RecoveryClassification,
+  recoveryDetail: ClassificationDetail | null | undefined,
+  config: TrainingConfig,
+  activeObjectives: ActivatedObjective[],
+  usingDefault: boolean
+): string {
+  const parts: string[] = [];
+
+  if (recoveryDetail) {
+    // Biometric signals
+    const hrvPct = recoveryDetail.hrvPct;
+    const rhrDiff = recoveryDetail.rhrDiff;
+
+    if (hrvPct !== null) {
+      if (hrvPct > 0) {
+        parts.push(`HRV is ${hrvPct}% below your 30-day average.`);
+      } else if (hrvPct < 0) {
+        parts.push(`HRV is ${Math.abs(hrvPct)}% above your 30-day average.`);
+      } else {
+        parts.push('HRV is at baseline.');
+      }
+    }
+
+    if (rhrDiff !== null) {
+      if (rhrDiff > 0) {
+        parts.push(`Resting HR is ${rhrDiff} bpm elevated.`);
+      } else if (rhrDiff < 0) {
+        parts.push(`Resting HR is ${Math.abs(rhrDiff)} bpm below baseline.`);
+      }
+    }
+
+    // Flag interactions take priority if present
+    if (recoveryDetail.flagInteractions.length > 0) {
+      parts.push(recoveryDetail.flagInteractions[0]);
+    }
+  }
+
+  // Active objective context
+  if (activeObjectives.length > 0) {
+    const sorted = [...activeObjectives].sort((a, b) => a.weeksRemaining - b.weeksRemaining);
+    const nearest = sorted[0];
+    parts.push(
+      `${nearest.name} is ${nearest.weeksRemaining} week${nearest.weeksRemaining === 1 ? '' : 's'} out — ${nearest.currentPhase} phase.`
+    );
+  }
+
+  // Fallback if no specific signals
+  if (parts.length === 0) {
+    if (usingDefault) {
+      return 'No check-in data available — recommendation based on default settings. Log a morning check-in for personalised context.';
+    }
+    return recovery === 'full'
+      ? 'Recovery signals are strong — executing plan as prescribed.'
+      : 'No biometric data for today — classification based on sleep quality and subjective feel.';
+  }
+
+  return parts.slice(0, 3).join(' ');
+}
+
+function buildConfigNote(config: TrainingConfig, recovery: RecoveryClassification): string | null {
+  if (recovery === 'rest') {
+    return 'Recovery takes priority — config settings are not influencing today\'s recommendation.';
+  }
+
+  const emphases: string[] = [];
+  if (config['posterior-chain-emphasis'] === 'high') emphases.push('posterior chain emphasis');
+  if (config['pull-emphasis'] === 'high') emphases.push('pull emphasis');
+  if (config['push-emphasis'] === 'high') emphases.push('push emphasis');
+  if (config['core-emphasis'] === 'high') emphases.push('core emphasis');
+  if (config['single-leg-emphasis'] === 'high') emphases.push('single-leg emphasis');
+  if (config['fatigue-state'] === 'high') emphases.push('fatigue state flagged as high');
+
+  if (emphases.length > 0) {
+    return `Config: ${emphases.slice(0, 2).join(' and ')}.`;
+  }
+
+  if (config['cardio-priority'] !== 'build') {
+    return `Config: cardio priority is ${config['cardio-priority']}.`;
+  }
+
+  return 'Active config is shaping this block — emphasis settings are at medium defaults.';
+}
+
 // ── Day builders ───────────────────────────────────────────────────────────
 
 function buildRestDay(
@@ -135,6 +230,9 @@ function buildRestDay(
   const isPeakWeek = proximity === 'peak-week';
   return {
     title: isPeakWeek ? 'Peak Week — Rest and Easy Movement' : 'Rest Day',
+    parameters: isPeakWeek
+      ? 'Full rest or gentle walk only — arrive fresh for your objective'
+      : 'Full rest — no structured training today',
     exercises: [],
     activityDescription: 'Full rest or gentle walk only.',
     recoveryState: recovery,
@@ -153,6 +251,7 @@ function buildRestDay(
 function buildFatiguedDay(recovery: RecoveryClassification): RecommendationCard {
   return {
     title: 'Active Recovery — Easy Zone 1 Only',
+    parameters: 'Easy movement 20–45 min, zone 1 only — conversational pace throughout. No strength, climbing, or conditioning.',
     exercises: [],
     activityDescription: 'Easy Zone 1 cardio — 20–45 min walk, easy spin, or gentle movement. No strength, no climbing, no conditioning.',
     recoveryState: recovery,
@@ -173,7 +272,6 @@ function buildTrainingDay(
 ): RecommendationCard {
   const isModerate = recovery === 'moderate';
 
-  // Determine workout type based on config emphasis
   const workoutType = selectWorkoutType(config, forearmsRest, posteriorRest);
   const exercises = buildExerciseList(workoutType, config, isModerate, forearmsRest, posteriorRest);
 
@@ -181,34 +279,13 @@ function buildTrainingDay(
     ? 'Volume reduced ~20% and intensity downgraded one level — moderate recovery.'
     : null;
 
-  const configNotes: string[] = [];
-  if (config['posterior-chain-emphasis'] === 'high') configNotes.push('posterior chain emphasis active');
-  if (config['single-leg-emphasis'] === 'high') configNotes.push('single-leg emphasis active');
-  if (config['pull-emphasis'] === 'high') configNotes.push('pull emphasis active');
-  if (config['push-emphasis'] === 'high') configNotes.push('push emphasis active');
-  if (config['core-emphasis'] === 'high') configNotes.push('core emphasis active');
-
-  const configInfluenceNote =
-    configNotes.length > 0
-      ? `Config: ${configNotes.join(', ')}.`
-      : null;
-
-  const forearmsNote = forearmsRest
-    ? 'Forearm/grip load is high — no climbing, no pullups today.'
-    : null;
-  const posteriorNote = posteriorRest
-    ? 'Posterior chain load is high — no heavy leg work today.'
-    : null;
-
-  const whyParts = [
-    isModerate ? 'Moderate recovery — keeping movement patterns but reducing volume.' : 'Full recovery — executing plan as prescribed.',
-    ...(forearmsNote ? [forearmsNote] : []),
-    ...(posteriorNote ? [posteriorNote] : []),
-    ...(planWeek?.notes ? [planWeek.notes] : []),
-  ];
+  const parametersStr = exercises.length > 0
+    ? exercises.map((e) => `${e.name} ${e.sets}×${e.reps}${e.note ? ` (${e.note})` : ''}`).join(' · ')
+    : 'All primary muscle groups at mandatory rest — light movement only';
 
   return {
     title: workoutType.label,
+    parameters: parametersStr,
     exercises,
     activityDescription: null,
     recoveryState: recovery,
@@ -216,9 +293,11 @@ function buildTrainingDay(
       ? 'Moderate recovery — reducing intensity slightly from plan.'
       : 'Full recovery — executing plan as prescribed.',
     modificationFlag,
-    configInfluenceNote,
+    configInfluenceNote: null,
     proximityNote: null,
-    whyNote: whyParts.join(' '),
+    whyNote: isModerate
+      ? 'Moderate recovery — keeping movement patterns but reducing volume.'
+      : 'Full recovery — executing plan as prescribed.',
   };
 }
 
@@ -358,9 +437,14 @@ function applyTaperModifier(card: RecommendationCard): RecommendationCard {
     note: 'Taper',
   }));
 
+  const parametersStr = reduced.length > 0
+    ? reduced.map((e) => `${e.name} ${e.sets}×${e.reps} (Taper)`).join(' · ')
+    : card.parameters;
+
   return {
     ...card,
     exercises: reduced,
+    parameters: parametersStr,
     modificationFlag: 'Taper week — volume reduced ~40%, intensity maintained.',
     proximityNote: 'Objective is 1–2 weeks away — arriving fresh is the priority.',
     whyNote: 'Taper: reduce volume, maintain intensity, protect key movements.',

@@ -70,6 +70,7 @@ export default function Dashboard() {
     const rec = buildRecommendation({
       config: resolvedConfig,
       recovery: detail?.classification ?? null,
+      recoveryDetail: detail ?? null,
       log,
       activeObjectives,
       today,

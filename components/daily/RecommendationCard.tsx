@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import type { RecommendationCard as Rec } from '@/lib/recommendation';
 
 interface Props {
@@ -7,6 +8,8 @@ interface Props {
 }
 
 export default function RecommendationCard({ recommendation: rec, date }: Props) {
+  const [whyOpen, setWhyOpen] = useState(false);
+
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
       <div className="flex items-start justify-between">
@@ -18,6 +21,11 @@ export default function RecommendationCard({ recommendation: rec, date }: Props)
         </div>
         <span className="text-xs text-zinc-600">{date}</span>
       </div>
+
+      {/* Parameters — prominent session description */}
+      {rec.parameters && (
+        <div className="text-sm text-zinc-300 leading-relaxed">{rec.parameters}</div>
+      )}
 
       {/* Exercises */}
       {rec.exercises.length > 0 && (
@@ -34,19 +42,33 @@ export default function RecommendationCard({ recommendation: rec, date }: Props)
         </div>
       )}
 
-      {/* Activity description */}
-      {rec.activityDescription && (
-        <div className="text-sm text-zinc-300">{rec.activityDescription}</div>
-      )}
-
-      {/* Notes */}
-      <div className="space-y-1 text-xs text-zinc-500">
+      {/* Modification / proximity flags */}
+      <div className="space-y-1 text-xs">
         {rec.modificationFlag && (
           <div className="text-amber-400">{rec.modificationFlag}</div>
         )}
-        {rec.configInfluenceNote && <div>{rec.configInfluenceNote}</div>}
-        {rec.proximityNote && <div className="text-sky-400">{rec.proximityNote}</div>}
-        {rec.whyNote && <div className="text-zinc-600 italic">{rec.whyNote}</div>}
+        {rec.proximityNote && (
+          <div className="text-sky-400">{rec.proximityNote}</div>
+        )}
+      </div>
+
+      {/* Collapsible "Why this?" */}
+      <div>
+        <button
+          onClick={() => setWhyOpen((o) => !o)}
+          className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors flex items-center gap-1"
+        >
+          Why this? <span className="text-zinc-700">{whyOpen ? '▲' : '▼'}</span>
+        </button>
+
+        {whyOpen && (
+          <div className="mt-2 space-y-1.5 text-xs text-zinc-500 border-l border-zinc-800 pl-3">
+            {rec.whyNote && <div>{rec.whyNote}</div>}
+            {rec.configInfluenceNote && (
+              <div className="text-zinc-600">{rec.configInfluenceNote}</div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

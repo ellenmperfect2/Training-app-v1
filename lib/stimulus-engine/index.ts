@@ -15,10 +15,23 @@ import stimulusMappingData from '../../data/stimulus-mapping.json';
 
 export type StimulusLevel = 'low' | 'medium' | 'high';
 
+export interface StimulusContext {
+  baseline: string;
+  contributors: string[];
+  implication: string;
+}
+
 export interface StimulusResult {
   raw: StimulusMap;
   levels: Record<keyof StimulusMap, StimulusLevel>;
   flags: string[];
+  contexts: Record<keyof StimulusMap, StimulusContext>;
+}
+
+export interface CardioSessionSummary {
+  level: StimulusLevel;
+  dominantGroup: string | null;
+  factors: string[];
 }
 
 const EMPTY_MAP = (): StimulusMap => ({
@@ -140,16 +153,81 @@ function getConditioningStimulus(session: ConditioningSession): StimulusMap {
   return result;
 }
 
+// ── Context builders ───────────────────────────────────────────────────────
+
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const GROUP_LABELS: Record<string, string> = {
+  posteriorChain: 'posterior chain',
+  quadDominant: 'quads',
+  push: 'push muscles',
+  pull: 'pull muscles',
+  core: 'core',
+  loadedCarry: 'loaded carry',
+  forearmsGrip: 'forearms and grip',
+};
+
+function dayLabel(dateStr: string): string {
+  const d = new Date(dateStr + 'T12:00:00');
+  return DAY_NAMES[d.getDay()];
+}
+
+function buildImplication(key: keyof StimulusMap, level: StimulusLevel): string {
+  const label = GROUP_LABELS[key] ?? String(key);
+  if (level === 'high') {
+    const hints: Partial<Record<keyof StimulusMap, string>> = {
+      forearmsGrip: 'Hold off on climbing and pullups until load drops.',
+      posteriorChain: 'Avoid heavy deadlifts and loaded hinge movements.',
+      pull: 'Monitor elbow and shoulder — back off pull volume.',
+    };
+    const hint = hints[key] ?? 'Allow recovery before adding more volume.';
+    return `High ${label} load. ${hint}`;
+  }
+  if (level === 'medium') {
+    return `Moderate ${label} stimulus — maintain current volume.`;
+  }
+  return `Low ${label} stimulus — room to add volume if feeling fresh.`;
+}
+
+interface Contributor {
+  label: string;
+  map: StimulusMap;
+}
+
+function buildStimulusContext(
+  key: keyof StimulusMap,
+  level: StimulusLevel,
+  contributors: Contributor[]
+): StimulusContext {
+  const relevant = contributors
+    .filter((c) => (c.map as unknown as Record<string, number>)[key] > 0.05)
+    .map((c) => {
+      const v = Math.round((c.map as unknown as Record<string, number>)[key] * 10) / 10;
+      return `${c.label}: +${v}`;
+    });
+
+  return {
+    baseline: 'Score >3.5 = high · 1.5–3.5 = medium · <1.5 = low (current week)',
+    contributors: relevant.length > 0 ? relevant : ['No sessions this week'],
+    implication: buildImplication(key, level),
+  };
+}
+
+// ── Main weekly computation ────────────────────────────────────────────────
+
 export function computeWeeklyStimulus(
   log: WorkoutLog,
   startDate: string,
   endDate: string
 ): StimulusResult {
   const total = EMPTY_MAP();
+  const contributors: Contributor[] = [];
 
   for (const s of log.cardio) {
     if (s.date >= startDate && s.date <= endDate) {
       const contrib = getCardioStimulus(s);
+      const hours = Math.round(s.durationMinutes / 60 * 10) / 10;
+      contributors.push({ label: `${s.corosType} (${dayLabel(s.date)}, ${hours}h)`, map: contrib });
       Object.keys(total).forEach((k) => {
         (total as unknown as Record<string, number>)[k] += (contrib as unknown as Record<string, number>)[k];
       });
@@ -159,6 +237,13 @@ export function computeWeeklyStimulus(
   for (const s of log.strength) {
     if (s.date >= startDate && s.date <= endDate) {
       const contrib = getStrengthStimulus(s);
+      const exercises = exerciseLibrary.exercises;
+      const names = s.exercises
+        .slice(0, 2)
+        .map((ex) => exercises.find((e) => e.id === ex.exerciseId)?.name ?? ex.exerciseId)
+        .join(', ');
+      const suffix = s.exercises.length > 2 ? '…' : '';
+      contributors.push({ label: `Strength: ${names}${suffix} (${dayLabel(s.date)})`, map: contrib });
       Object.keys(total).forEach((k) => {
         (total as unknown as Record<string, number>)[k] += (contrib as unknown as Record<string, number>)[k];
       });
@@ -168,6 +253,7 @@ export function computeWeeklyStimulus(
   for (const s of log.climbing) {
     if (s.date >= startDate && s.date <= endDate) {
       const contrib = getClimbingStimulus(s);
+      contributors.push({ label: `Climbing (${dayLabel(s.date)}, ${s.climbs.length} routes)`, map: contrib });
       Object.keys(total).forEach((k) => {
         (total as unknown as Record<string, number>)[k] += (contrib as unknown as Record<string, number>)[k];
       });
@@ -177,6 +263,7 @@ export function computeWeeklyStimulus(
   for (const s of log.conditioning) {
     if (s.date >= startDate && s.date <= endDate) {
       const contrib = getConditioningStimulus(s);
+      contributors.push({ label: `Conditioning (${dayLabel(s.date)})`, map: contrib });
       Object.keys(total).forEach((k) => {
         (total as unknown as Record<string, number>)[k] += (contrib as unknown as Record<string, number>)[k];
       });
@@ -201,7 +288,14 @@ export function computeWeeklyStimulus(
     flags.push('Quad-dominant load is high this week');
   }
 
-  return { raw: total, levels, flags };
+  const contexts = Object.fromEntries(
+    Object.keys(total).map((k) => [
+      k,
+      buildStimulusContext(k as keyof StimulusMap, levels[k as keyof StimulusMap], contributors),
+    ])
+  ) as Record<keyof StimulusMap, StimulusContext>;
+
+  return { raw: total, levels, flags, contexts };
 }
 
 export function getDailyStimulusForDomain(
@@ -264,4 +358,66 @@ export function getCurrentWeekDates(): { startDate: string; endDate: string } {
     startDate: monday.toISOString().slice(0, 10),
     endDate: sunday.toISOString().slice(0, 10),
   };
+}
+
+// ── Single-session cardio load summary (for upload summary) ─────────────────
+
+const CARDIO_TYPE_LABELS: Record<string, string> = {
+  OutdoorHike: 'Outdoor hike',
+  OutdoorRun: 'Outdoor run',
+  IndoorRun: 'Indoor run',
+  OutdoorCycling: 'Outdoor cycling',
+  IndoorCycling: 'Indoor cycling',
+  GeneralCardio: 'General cardio',
+};
+
+export function getCardioSessionStimulusSummary(session: ParsedCorosSession): CardioSessionSummary {
+  const map = getCardioStimulus(session);
+
+  // Use dominant group level as the session load classification
+  let dominantKey: keyof StimulusMap | null = null;
+  let dominantVal = 0;
+  for (const [k, v] of Object.entries(map)) {
+    if (v > dominantVal) {
+      dominantVal = v;
+      dominantKey = k as keyof StimulusMap;
+    }
+  }
+
+  const level = dominantVal > 0 ? toLevel(dominantVal) : 'low';
+
+  // Build factors list
+  const factors: string[] = [];
+  const typeLabel = CARDIO_TYPE_LABELS[session.corosType] ?? session.corosType;
+  factors.push(`Activity type: ${typeLabel}`);
+
+  if (session.durationMinutes > 0) {
+    const hrs = Math.round((session.durationMinutes / 60) * 10) / 10;
+    factors.push(`Duration: ${hrs}h`);
+  }
+
+  if (session.elevationGainM > 0) {
+    const ft = Math.round(session.elevationGainM * 3.281);
+    factors.push(`Elevation gain: ${ft}ft — increases posterior chain and loaded carry stimulus`);
+  }
+
+  if (session.annotation.packWeight && session.annotation.packWeight !== 'none') {
+    factors.push(`Pack weight: ${session.annotation.packWeight} — increases loaded carry and posterior chain stimulus`);
+  }
+
+  if (session.annotation.weightsUsed) {
+    factors.push('Weights used — adds loaded carry stimulus');
+  }
+
+  if (session.avgHR) {
+    factors.push(`Avg HR: ${session.avgHR} bpm`);
+  }
+
+  if (session.annotation.perceivedEffort) {
+    factors.push(`Perceived effort: ${session.annotation.perceivedEffort}/10`);
+  }
+
+  const dominantLabel = dominantKey ? (GROUP_LABELS[dominantKey] ?? String(dominantKey)) : null;
+
+  return { level, dominantGroup: dominantLabel, factors };
 }
