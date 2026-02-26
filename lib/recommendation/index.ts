@@ -60,16 +60,38 @@ const DEFAULT_CONFIG: TrainingConfig = {
   'fatigue-state': 'low',
   'cardio-priority': 'build',
   'cardio-zone2-minimum-hours': 4,
+  'cardio-anaerobic-flag': 'none',
+  'cardio-weekly-target': {
+    direction: 'hold',
+    sessions: 3,
+    'primary-zone': 'z1-2',
+    'session-duration-hours': 1.5,
+    note: '',
+  },
   'strength-priority': 'build',
   'posterior-chain-emphasis': 'medium',
   'single-leg-emphasis': 'medium',
   'push-emphasis': 'medium',
   'pull-emphasis': 'medium',
   'core-emphasis': 'medium',
+  'strength-weekly-target': {
+    direction: 'hold',
+    sessions: 2,
+    'primary-focus': 'full-body',
+    'rep-scheme': 'hypertrophy',
+    note: '',
+  },
   'climbing-priority': 'build',
   'climbing-frequency-max': 3,
+  'climbing-weekly-target': {
+    direction: 'hold',
+    sessions: 2,
+    'primary-focus': 'endurance',
+    note: '',
+  },
   'conditioning-frequency': 2,
   'loaded-carry-sessions': 1,
+  'loaded-carry-direction': 'hold',
   'objective-proximity-flag': 'normal',
   'override-reason': 'Default baseline config.',
 };
@@ -117,10 +139,13 @@ function buildZoneRecommendation(
   const z4low = zones.z4.low + prefs.hrCalibrationOffset;
   const z4high = zones.z4.high + prefs.hrCalibrationOffset;
 
+  const anaerobicFlag = config['cardio-anaerobic-flag'] ?? 'none';
+  const cardioTarget = config['cardio-weekly-target'];
+  const fatigue = config['fatigue-state'];
+
   // ── With active objectives ──────────────────────────────────────────────
 
   if (activeObjectives.length > 0) {
-    // Work from nearest objective
     const sorted = [...activeObjectives].sort((a, b) => a.weeksRemaining - b.weeksRemaining);
     const obj = sorted[0];
 
@@ -129,16 +154,19 @@ function buildZoneRecommendation(
     const altFt = obj.maxAltitudeFt ?? 0;
     const weeks = obj.weeksRemaining;
 
-    // Condition 1: threshold introduction phase — window is open, deficit exists
+    // Condition 1: threshold introduction phase — window is open, deficit exists.
+    // Suppressed when cardio-anaerobic-flag is 'reduce'.
     if (thresholdRequired && weeks <= introWeeks && anaerobicPct < 15 && totalHours > 2) {
-      const altNote = altFt > 8000 ? ' at altitude' : '';
-      return {
-        cardioNote: `${obj.name} demands threshold capacity${altNote}. Z4–Z5 has been ${Math.round(anaerobicPct)}% of 4-week cardio volume — ${weeks} week${weeks === 1 ? '' : 's'} remaining.`,
-        cardioParams: `3 × 10 min at threshold effort (target HR ${z4low}–${z4high} bpm) with 10 min Z1 recovery between efforts`,
-      };
+      if (anaerobicFlag !== 'reduce') {
+        const altNote = altFt > 8000 ? ' at altitude' : '';
+        return {
+          cardioNote: `${obj.name} demands threshold capacity${altNote}. Z4–Z5 has been ${Math.round(anaerobicPct)}% of 4-week cardio volume — ${weeks} week${weeks === 1 ? '' : 's'} remaining.`,
+          cardioParams: `3 × 10 min at threshold effort (target HR ${z4low}–${z4high} bpm) with 10 min Z1 recovery between efforts`,
+        };
+      }
     }
 
-    // Condition 2: aerobic base thin, still in base phase (before threshold window)
+    // Condition 2: aerobic base thin, still in base phase (before threshold window).
     if (minZ2 > 0 && thisWeekZ2 < minZ2 && weeks > introWeeks) {
       const remaining = Math.round((minZ2 - thisWeekZ2) * 10) / 10;
       return {
@@ -147,47 +175,96 @@ function buildZoneRecommendation(
       };
     }
 
-    // Condition 3: altitude objective approaching, threshold work absent
+    // Condition 3: altitude objective approaching, threshold work absent.
+    // Suppressed when cardio-anaerobic-flag is 'reduce'.
     if (altFt > 8000 && weeks <= 8 && thresholdRequired && anaerobicPct < 10 && totalHours > 2) {
-      const avgWeeklyZ2 = totals.z2Hours / 4;
-      const z2Status = minZ2 > 0 && avgWeeklyZ2 >= minZ2 * 0.85 ? 'on track' : 'behind';
+      if (anaerobicFlag !== 'reduce') {
+        const avgWeeklyZ2 = totals.z2Hours / 4;
+        const z2Status = minZ2 > 0 && avgWeeklyZ2 >= minZ2 * 0.85 ? 'on track' : 'behind';
+        return {
+          cardioNote: `${obj.name} is above 8000ft. Aerobic base is ${z2Status}. Z4–Z5 has been only ${Math.round(anaerobicPct)}% of cardio with ${weeks} weeks remaining — altitude demands threshold capacity.`,
+          cardioParams: `3 × 10 min at threshold effort (target HR ${z4low}–${z4high} bpm) with 10 min Z1 recovery`,
+        };
+      }
+    }
+
+    // Develop flag: push toward Z4-5 when fatigue permits, even outside threshold window.
+    if (anaerobicFlag === 'develop' && fatigue !== 'high' && fatigue !== 'rest' && totalHours > 2) {
       return {
-        cardioNote: `${obj.name} is above 8000ft. Aerobic base is ${z2Status}. Z4–Z5 has been only ${Math.round(anaerobicPct)}% of cardio with ${weeks} weeks remaining — altitude demands threshold capacity.`,
+        cardioNote: `Config flags anaerobic development. Current 4-week anaerobic balance: ${Math.round(anaerobicPct)}%.`,
         cardioParams: `3 × 10 min at threshold effort (target HR ${z4low}–${z4high} bpm) with 10 min Z1 recovery`,
       };
     }
+  } else {
+    // ── No objectives: methodology-based aerobic/anaerobic targets ────────
 
-    return { cardioNote: null, cardioParams: null };
+    const methodologyAerobicTarget: Record<string, number> = {
+      'uphill-athlete': 80,
+      'general-endurance': 70,
+      'balanced': 60,
+    };
+    const methodologyLabels: Record<string, string> = {
+      'uphill-athlete': 'Uphill Athlete',
+      'general-endurance': 'General Endurance',
+      'balanced': 'Balanced',
+    };
+
+    const aerobicTarget = methodologyAerobicTarget[prefs.preferredMethodology] ?? 80;
+    const anaerobicTarget = 100 - aerobicTarget;
+    const label = methodologyLabels[prefs.preferredMethodology] ?? 'Uphill Athlete';
+
+    if (totalHours > 0) {
+      if (totals.aerobicPct < aerobicTarget) {
+        return {
+          cardioNote: `${label}: aerobic target is ${aerobicTarget}% Z1–Z2. Current 4-week balance is ${totals.aerobicPct}%.`,
+          cardioParams: `Zone 2 cardio (target HR ${z2low}–${z2high} bpm) to build aerobic base toward ${aerobicTarget}% target`,
+        };
+      }
+      // Condition 6: anaerobic below target — suppressed when flag is 'reduce'.
+      if (Math.round(anaerobicPct) < anaerobicTarget && totalHours > 2) {
+        if (anaerobicFlag !== 'reduce') {
+          return {
+            cardioNote: `${label}: threshold target is ${anaerobicTarget}% Z4–Z5. Current 4-week balance is ${Math.round(anaerobicPct)}%.`,
+            cardioParams: `3 × 10 min at threshold effort (target HR ${z4low}–${z4high} bpm) with 10 min Z1 recovery`,
+          };
+        }
+      }
+    }
+
+    // Develop flag: push toward Z4-5 when fatigue permits.
+    if (anaerobicFlag === 'develop' && fatigue !== 'high' && fatigue !== 'rest' && totalHours > 2) {
+      return {
+        cardioNote: `Config flags anaerobic development. Current 4-week anaerobic balance: ${Math.round(anaerobicPct)}%.`,
+        cardioParams: `3 × 10 min at threshold effort (target HR ${z4low}–${z4high} bpm) with 10 min Z1 recovery`,
+      };
+    }
   }
 
-  // ── No objectives: methodology-based aerobic/anaerobic targets ──────────
+  // ── cardio-weekly-target fallback ─────────────────────────────────────────
+  // Used when no zone-analysis condition triggered a recommendation.
 
-  const methodologyAerobicTarget: Record<string, number> = {
-    'uphill-athlete': 80,
-    'general-endurance': 70,
-    'balanced': 60,
-  };
-  const methodologyLabels: Record<string, string> = {
-    'uphill-athlete': 'Uphill Athlete',
-    'general-endurance': 'General Endurance',
-    'balanced': 'Balanced',
-  };
+  if (cardioTarget && totalHours > 0) {
+    const durStr = cardioTarget['session-duration-hours'] > 0
+      ? ` — target ${cardioTarget['session-duration-hours']}h`
+      : '';
+    const noteText = cardioTarget.note && !cardioTarget.note.includes('defaults active')
+      ? cardioTarget.note
+      : null;
 
-  const aerobicTarget = methodologyAerobicTarget[prefs.preferredMethodology] ?? 80;
-  const anaerobicTarget = 100 - aerobicTarget;
-  const label = methodologyLabels[prefs.preferredMethodology] ?? 'Uphill Athlete';
-
-  if (totalHours > 0) {
-    if (totals.aerobicPct < aerobicTarget) {
+    if (cardioTarget['primary-zone'] === 'z4-5' && anaerobicFlag !== 'reduce') {
       return {
-        cardioNote: `${label}: aerobic target is ${aerobicTarget}% Z1–Z2. Current 4-week balance is ${totals.aerobicPct}%.`,
-        cardioParams: `Zone 2 cardio (target HR ${z2low}–${z2high} bpm) to build aerobic base toward ${aerobicTarget}% target`,
+        cardioNote: noteText ?? `Weekly target: threshold focus${durStr}.`,
+        cardioParams: `Threshold effort session (target HR ${z4low}–${z4high} bpm)${durStr}`,
       };
-    }
-    if (Math.round(anaerobicPct) < anaerobicTarget && totalHours > 2) {
+    } else if (cardioTarget['primary-zone'] === 'z3') {
       return {
-        cardioNote: `${label}: threshold target is ${anaerobicTarget}% Z4–Z5. Current 4-week balance is ${Math.round(anaerobicPct)}%.`,
-        cardioParams: `3 × 10 min at threshold effort (target HR ${z4low}–${z4high} bpm) with 10 min Z1 recovery`,
+        cardioNote: noteText ?? `Weekly target: tempo/Zone 3 focus${durStr}.`,
+        cardioParams: `Tempo cardio — Zone 3 effort${durStr}`,
+      };
+    } else {
+      return {
+        cardioNote: noteText ?? `Weekly target: aerobic base focus${durStr}.`,
+        cardioParams: `Zone 2 cardio (target HR ${z2low}–${z2high} bpm)${durStr}`,
       };
     }
   }
@@ -418,6 +495,28 @@ function buildConfigNote(
     notes.push(`Methodology: ${prefs.preferredMethodology}.`);
   }
 
+  // Weekly targets context (non-default config only)
+  if (!usingDefault) {
+    const strengthTarget = config['strength-weekly-target'];
+    if (strengthTarget) {
+      const schemeLabel = strengthTarget['rep-scheme'] === 'strength'
+        ? 'strength (1–5 reps)'
+        : strengthTarget['rep-scheme'] === 'endurance'
+        ? 'endurance (12+ reps)'
+        : 'hypertrophy (6–12 reps)';
+      notes.push(`Strength target: ${strengthTarget['primary-focus']}, ${schemeLabel}.`);
+    }
+    const climbingTarget = config['climbing-weekly-target'];
+    if (climbingTarget) {
+      notes.push(`Climbing target: ${climbingTarget['primary-focus']} focus.`);
+    }
+    const loadedCarrySessions = config['loaded-carry-sessions'];
+    const loadedCarryDir = config['loaded-carry-direction'] ?? 'hold';
+    if (loadedCarrySessions > 0) {
+      notes.push(`Loaded carry: ${loadedCarrySessions}x/wk — ${loadedCarryDir}.`);
+    }
+  }
+
   return notes.length > 0 ? notes.join(' ') : null;
 }
 
@@ -561,6 +660,51 @@ function selectWorkoutType(
     };
   }
 
+  // strength-weekly-target.primary-focus as tiebreaker when no emphasis is 'high'
+  const primaryFocus = config['strength-weekly-target']?.['primary-focus'];
+  if (primaryFocus && primaryFocus !== 'full-body') {
+    if (primaryFocus === 'posterior-chain' && !posteriorRest) {
+      return {
+        id: 'lower-posterior',
+        label: 'Lower Body — Posterior Chain',
+        muscleGroup: 'posterior-chain',
+        exerciseIds: ['deadlift', 'single-leg-rdl', 'barbell-lunge'],
+      };
+    }
+    if (primaryFocus === 'single-leg' && !posteriorRest) {
+      return {
+        id: 'lower-quad',
+        label: 'Lower Body — Quad',
+        muscleGroup: 'quad-dominant',
+        exerciseIds: ['barbell-squat', 'barbell-lunge', 'single-leg-rdl'],
+      };
+    }
+    if (primaryFocus === 'push') {
+      return {
+        id: 'upper-push',
+        label: 'Upper Body — Push',
+        muscleGroup: 'push',
+        exerciseIds: ['bench-press', 'barbell-shoulder-press', 'pushup'],
+      };
+    }
+    if (primaryFocus === 'pull' && !forearmsRest) {
+      return {
+        id: 'upper-pull',
+        label: 'Upper Body — Pull',
+        muscleGroup: 'pull',
+        exerciseIds: ['pullup', 'inverted-row', 'cable-lat-pulldown', 'cable-row'],
+      };
+    }
+    if (primaryFocus === 'core') {
+      return {
+        id: 'core',
+        label: 'Core',
+        muscleGroup: 'core',
+        exerciseIds: ['hanging-leg-lifts', 'leg-lifts-lying'],
+      };
+    }
+  }
+
   return {
     id: 'full-body',
     label: 'Full Body',
@@ -568,6 +712,12 @@ function selectWorkoutType(
     exerciseIds: ['barbell-squat', 'deadlift', 'bench-press', 'pullup', 'leg-lifts-lying'],
   };
 }
+
+const REP_SCHEME_REPS: Record<string, number> = {
+  strength: 3,
+  hypertrophy: 8,
+  endurance: 15,
+};
 
 function buildExerciseList(
   workoutType: WorkoutType,
@@ -580,6 +730,9 @@ function buildExerciseList(
   const results: ExerciseRecommendation[] = [];
   const exercises = exerciseLibrary.exercises;
 
+  const repScheme = config['strength-weekly-target']?.['rep-scheme'];
+  const schemeReps = repScheme ? (REP_SCHEME_REPS[repScheme] ?? null) : null;
+
   for (const id of workoutType.exerciseIds) {
     // Skip exercises based on mandatory rest
     if (forearmsRest && (id === 'pullup' || id === 'cable-lat-pulldown' || id === 'hanging-leg-lifts' || id === 'deadlift')) continue;
@@ -591,7 +744,7 @@ function buildExerciseList(
     if (!def) continue;
 
     let sets = def.defaults.sets;
-    let reps = def.defaults.reps;
+    const reps = schemeReps ?? def.defaults.reps;
 
     if (isModerate) {
       sets = Math.max(1, Math.round(sets * 0.8));

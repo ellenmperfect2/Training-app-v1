@@ -1,5 +1,5 @@
 # Summit Dashboard — CLAUDE.md
-**v6 — objective-aware zone recommendations, threshold fields on ActivatedObjective, elevation on dashboard; added MANAGE SETTINGS command type + /settings route + lastExportDate localStorage key — 2026-02-26**
+**v7 — added cardio-anaerobic-flag, weekly target blocks (cardio/strength/climbing), and loaded-carry-direction to TrainingConfig schema — 2026-02-26**
 
 Claude Code reads this file at the start of every session. It reflects the current architectural state of the app. Update this file (incrementing v[N]) after any change to file ownership, localStorage structure, data shapes, command types, or system architecture.
 
@@ -141,6 +141,41 @@ interface ActivatedObjective {
 ```
 
 **Phase calculation** (Prompt 3): >= 12w = Base, 8–11w = Build, 4–7w = Peak, 1–3w = Taper, 0w = Race Week
+
+---
+
+## Key Data Shape: TrainingConfig (new fields — added schema v2.0)
+
+New fields added alongside the existing flat fields. All are optional (`?`) in TypeScript for backward compatibility with stored configs; required in the parser for newly pasted configs.
+
+```ts
+// New flat fields
+'cardio-anaerobic-flag'?: 'none' | 'develop' | 'maintain' | 'reduce'
+'loaded-carry-direction'?: 'increase' | 'decrease' | 'hold'
+
+// New object blocks
+'cardio-weekly-target'?:   { direction, sessions, 'primary-zone': 'z1-2'|'z3'|'z4-5', 'session-duration-hours', note }
+'strength-weekly-target'?: { direction, sessions, 'primary-focus': 'posterior-chain'|'single-leg'|'push'|'pull'|'core'|'full-body', 'rep-scheme': 'strength'|'hypertrophy'|'endurance', note }
+'climbing-weekly-target'?: { direction, sessions, 'primary-focus': 'endurance'|'power-endurance'|'projecting'|'conditioning'|'rest', note }
+```
+
+**Behavioral rules (recommendation engine):**
+- `cardio-anaerobic-flag: develop` → weights cardio toward Z4–5 when fatigue-state is not high/rest
+- `cardio-anaerobic-flag: reduce` → suppresses all threshold recommendations regardless of other signals
+- `strength-weekly-target['rep-scheme']` → overrides exercise default reps: strength=3, hypertrophy=8, endurance=15
+- `strength-weekly-target['primary-focus']` → used as workout-type tiebreaker when no emphasis field is 'high'
+- Weekly target blocks are a display and context layer — the existing emphasis/priority fields remain and drive core logic
+
+**Sub-block XML format (for pasted configs):**
+```
+<cardio-weekly-target>
+  direction: increase
+  sessions: 4
+  primary-zone: z1-2
+  session-duration-hours: 1.5
+  note: Building aerobic base
+</cardio-weekly-target>
+```
 
 ---
 

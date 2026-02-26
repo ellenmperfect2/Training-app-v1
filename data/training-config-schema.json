@@ -1,5 +1,5 @@
 {
-  "schema-version": "1.0",
+  "schema-version": "2.0",
   "fields": {
     "generated-date": { "type": "date", "format": "YYYY-MM-DD", "required": true },
     "expires-date": { "type": "date", "format": "YYYY-MM-DD", "required": true },
@@ -14,6 +14,23 @@
       "required": true
     },
     "cardio-zone2-minimum-hours": { "type": "number", "min": 0, "max": 20, "required": true },
+    "cardio-anaerobic-flag": {
+      "type": "enum",
+      "values": ["none", "develop", "maintain", "reduce"],
+      "required": true,
+      "default": "none"
+    },
+    "cardio-weekly-target": {
+      "type": "object",
+      "required": true,
+      "fields": {
+        "direction": { "type": "enum", "values": ["increase", "decrease", "hold"] },
+        "sessions": { "type": "number", "min": 0, "max": 14 },
+        "primary-zone": { "type": "enum", "values": ["z1-2", "z3", "z4-5"] },
+        "session-duration-hours": { "type": "number", "min": 0, "max": 6 },
+        "note": { "type": "string", "maxLength": 120 }
+      }
+    },
     "strength-priority": {
       "type": "enum",
       "values": ["maintain", "build", "peak", "deload"],
@@ -44,14 +61,53 @@
       "values": ["low", "medium", "high"],
       "required": true
     },
+    "strength-weekly-target": {
+      "type": "object",
+      "required": true,
+      "note": "Conditioning sessions are folded under this block. The conditioning-frequency field continues to drive daily recommendation logic.",
+      "fields": {
+        "direction": { "type": "enum", "values": ["increase", "decrease", "hold"] },
+        "sessions": { "type": "number", "min": 0, "max": 7 },
+        "primary-focus": {
+          "type": "enum",
+          "values": ["posterior-chain", "single-leg", "push", "pull", "core", "full-body"]
+        },
+        "rep-scheme": {
+          "type": "enum",
+          "values": ["strength", "hypertrophy", "endurance"],
+          "note": "strength=1-5 reps, hypertrophy=6-12 reps, endurance=12+ reps"
+        },
+        "note": { "type": "string", "maxLength": 120 }
+      }
+    },
     "climbing-priority": {
       "type": "enum",
       "values": ["maintain", "build", "peak", "rest"],
       "required": true
     },
     "climbing-frequency-max": { "type": "number", "min": 0, "max": 7, "required": true },
+    "climbing-weekly-target": {
+      "type": "object",
+      "required": true,
+      "fields": {
+        "direction": { "type": "enum", "values": ["increase", "decrease", "hold"] },
+        "sessions": { "type": "number", "min": 0, "max": 7 },
+        "primary-focus": {
+          "type": "enum",
+          "values": ["endurance", "power-endurance", "projecting", "conditioning", "rest"]
+        },
+        "note": { "type": "string", "maxLength": 120 }
+      }
+    },
     "conditioning-frequency": { "type": "number", "min": 0, "max": 7, "required": true },
     "loaded-carry-sessions": { "type": "number", "min": 0, "max": 7, "required": true },
+    "loaded-carry-direction": {
+      "type": "enum",
+      "values": ["increase", "decrease", "hold"],
+      "required": true,
+      "default": "hold",
+      "note": "Sits alongside loaded-carry-sessions. Together they express the weekly loaded carry target."
+    },
     "objective-proximity-flag": {
       "type": "enum",
       "values": ["normal", "approaching", "taper", "peak-week"],

@@ -541,22 +541,50 @@ export interface GradeDataPoint {
   highestSend: string;
 }
 
+export interface CardioWeeklyTarget {
+  direction: 'increase' | 'decrease' | 'hold';
+  sessions: number;
+  'primary-zone': 'z1-2' | 'z3' | 'z4-5';
+  'session-duration-hours': number;
+  note: string;
+}
+
+export interface StrengthWeeklyTarget {
+  direction: 'increase' | 'decrease' | 'hold';
+  sessions: number;
+  'primary-focus': 'posterior-chain' | 'single-leg' | 'push' | 'pull' | 'core' | 'full-body';
+  'rep-scheme': 'strength' | 'hypertrophy' | 'endurance';
+  note: string;
+}
+
+export interface ClimbingWeeklyTarget {
+  direction: 'increase' | 'decrease' | 'hold';
+  sessions: number;
+  'primary-focus': 'endurance' | 'power-endurance' | 'projecting' | 'conditioning' | 'rest';
+  note: string;
+}
+
 export interface TrainingConfig {
   'generated-date': string;
   'expires-date': string;
   'fatigue-state': 'low' | 'moderate' | 'high' | 'rest';
   'cardio-priority': 'maintain' | 'build' | 'peak' | 'taper';
   'cardio-zone2-minimum-hours': number;
+  'cardio-anaerobic-flag'?: 'none' | 'develop' | 'maintain' | 'reduce';
+  'cardio-weekly-target'?: CardioWeeklyTarget;
   'strength-priority': 'maintain' | 'build' | 'peak' | 'deload';
   'posterior-chain-emphasis': 'low' | 'medium' | 'high';
   'single-leg-emphasis': 'low' | 'medium' | 'high';
   'push-emphasis': 'low' | 'medium' | 'high';
   'pull-emphasis': 'low' | 'medium' | 'high';
   'core-emphasis': 'low' | 'medium' | 'high';
+  'strength-weekly-target'?: StrengthWeeklyTarget;
   'climbing-priority': 'maintain' | 'build' | 'peak' | 'rest';
   'climbing-frequency-max': number;
+  'climbing-weekly-target'?: ClimbingWeeklyTarget;
   'conditioning-frequency': number;
   'loaded-carry-sessions': number;
+  'loaded-carry-direction'?: 'increase' | 'decrease' | 'hold';
   'objective-proximity-flag': 'normal' | 'approaching' | 'taper' | 'peak-week';
   'override-reason': string;
 }

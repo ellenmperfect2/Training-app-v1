@@ -4,16 +4,38 @@
   "fatigue-state": "low",
   "cardio-priority": "build",
   "cardio-zone2-minimum-hours": 4,
+  "cardio-anaerobic-flag": "none",
+  "cardio-weekly-target": {
+    "direction": "hold",
+    "sessions": 3,
+    "primary-zone": "z1-2",
+    "session-duration-hours": 1.5,
+    "note": "No config loaded — defaults active"
+  },
   "strength-priority": "build",
   "posterior-chain-emphasis": "medium",
   "single-leg-emphasis": "medium",
   "push-emphasis": "medium",
   "pull-emphasis": "medium",
   "core-emphasis": "medium",
+  "strength-weekly-target": {
+    "direction": "hold",
+    "sessions": 2,
+    "primary-focus": "full-body",
+    "rep-scheme": "hypertrophy",
+    "note": "No config loaded — defaults active"
+  },
   "climbing-priority": "build",
   "climbing-frequency-max": 3,
+  "climbing-weekly-target": {
+    "direction": "hold",
+    "sessions": 2,
+    "primary-focus": "endurance",
+    "note": "No config loaded — defaults active"
+  },
   "conditioning-frequency": 2,
   "loaded-carry-sessions": 1,
+  "loaded-carry-direction": "hold",
   "objective-proximity-flag": "normal",
   "override-reason": "Default baseline config. Run weekly analysis to get personalized recommendations."
 }
