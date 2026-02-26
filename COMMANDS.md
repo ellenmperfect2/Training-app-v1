@@ -214,6 +214,14 @@ Version number increments with every substantive change. Summary should be 3–6
 
 ---
 
+## VIEW ACTIVITY LOG
+- **Scope:** activity log UI only (`components/activity/`, `app/activity/`)
+- **Read from:** `workoutLog` localStorage (read only), calls `/lib/objective-matcher.js` (read only)
+- **Never touch:** `workoutLog` (no writes), `/lib/objective-matcher.js` logic, `/lib/recommendation`, `/lib/recovery`, `/lib/fit-parser.ts`, any data file, any other localStorage key
+- **Triggers:** "activity log", "view all sessions", "session history", "activity screen"
+
+---
+
 ## ADD OBJECTIVE MATCHER
 - **Scope:** `/lib/objective-matcher.js` only
 - **Read from:** `activeObjectives` localStorage, `objective-library.json`, `exercise-library.json` (muscle group lookups), `workoutLog` (read only at call time — no writes)

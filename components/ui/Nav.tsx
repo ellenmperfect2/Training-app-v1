@@ -9,6 +9,7 @@ const links = [
   { href: '/log/climbing', label: 'Climbing' },
   { href: '/log/conditioning', label: 'Conditioning' },
   { href: '/upload', label: 'Cardio' },
+  { href: '/activity', label: 'Activity' },
   { href: '/objectives', label: 'Objectives' },
   { href: '/benchmarks', label: 'Benchmarks' },
   { href: '/preferences', label: 'Preferences' },
