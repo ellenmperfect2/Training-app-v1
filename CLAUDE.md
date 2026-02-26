@@ -1,5 +1,5 @@
 # Summit Dashboard — CLAUDE.md
-**v5 — objective-aware zone recommendations, threshold fields on ActivatedObjective, elevation on dashboard — 2026-02-26**
+**v6 — objective-aware zone recommendations, threshold fields on ActivatedObjective, elevation on dashboard; added MANAGE SETTINGS command type + /settings route + lastExportDate localStorage key — 2026-02-26**
 
 Claude Code reads this file at the start of every session. It reflects the current architectural state of the app. Update this file (incrementing v[N]) after any change to file ownership, localStorage structure, data shapes, command types, or system architecture.
 
@@ -34,8 +34,9 @@ Claude Code reads this file at the start of every session. It reflects the curre
 | Zone system | `lib/zones.ts`, `lib/storage/index.ts` (UserZones), `components/zones/`, `app/zones/` | MANAGE ZONES |
 | FIT parser | `lib/fit-parser.ts` | PROCESS DAILY DATA |
 | User preferences | `lib/storage/index.ts` (UserPreferences), `components/preferences/`, `app/preferences/` | MANAGE USER PREFERENCES |
-| UI components | `components/` | AESTHETIC UPDATE, PROCESS DAILY DATA, MANAGE OBJECTIVES, MANAGE USER PREFERENCES |
-| Pages / Nav | `app/`, `components/ui/Nav.tsx` | AESTHETIC UPDATE, PROCESS DAILY DATA, MANAGE USER PREFERENCES |
+| Settings screen | `components/settings/`, `app/settings/` | MANAGE SETTINGS |
+| UI components | `components/` | AESTHETIC UPDATE, PROCESS DAILY DATA, MANAGE OBJECTIVES, MANAGE USER PREFERENCES, MANAGE SETTINGS |
+| Pages / Nav | `app/`, `components/ui/Nav.tsx` | AESTHETIC UPDATE, PROCESS DAILY DATA, MANAGE USER PREFERENCES, MANAGE SETTINGS |
 
 ---
 
@@ -56,6 +57,7 @@ Claude Code reads this file at the start of every session. It reflects the curre
 | `configHistory` | array | APPLY TRAINING CONFIG |
 | `userPreferences` | `UserPreferences` | MANAGE USER PREFERENCES |
 | `userZones` | `UserZones` | MANAGE ZONES |
+| `lastExportDate` | ISO string \| null — device-local, never exported | MANAGE SETTINGS |
 
 ---
 

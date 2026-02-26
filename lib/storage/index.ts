@@ -15,6 +15,7 @@ export const STORAGE_KEYS = {
   CONFIG_HISTORY: 'configHistory',
   USER_PREFERENCES: 'userPreferences',
   USER_ZONES: 'userZones',
+  LAST_EXPORT_DATE: 'lastExportDate',
 } as const;
 
 function isBrowser(): boolean {
@@ -258,6 +259,23 @@ export function getUserZones(): UserZones {
 
 export function setUserZones(zones: UserZones): void {
   write(STORAGE_KEYS.USER_ZONES, zones);
+}
+
+// ── Last Export Date ────────────────────────────────────────────────────────
+// Device-local tracking only — not included in export payload.
+
+export function getLastExportDate(): string | null {
+  if (!isBrowser()) return null;
+  return window.localStorage.getItem(STORAGE_KEYS.LAST_EXPORT_DATE);
+}
+
+export function setLastExportDate(isoDate: string): void {
+  if (!isBrowser()) return;
+  window.localStorage.setItem(STORAGE_KEYS.LAST_EXPORT_DATE, isoDate);
+}
+
+export function clearLastExportDate(): void {
+  remove(STORAGE_KEYS.LAST_EXPORT_DATE);
 }
 
 // ── Types ──────────────────────────────────────────────────────────────────

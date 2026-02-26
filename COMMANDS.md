@@ -59,7 +59,14 @@ Version number increments with every substantive change. Summary should be 3–6
 ## MANAGE USER PREFERENCES
 - **Scope:** `userPreferences` localStorage key, preferences UI screen (`/preferences`), `/lib/recommendation` (reading preference values only)
 - **Never Touch:** `objective-library.json`, `benchmark-library.json`, `assessment-library.json`, `training-config.json`, `training-config-schema.json`, `objective-spec-schema.json`
-- **Triggers:** "preferences", "settings", "HR calibration", "limitations", "suppress recommendation", "methodology", "objective notes"
+- **Triggers:** "preferences", "HR calibration", "limitations", "suppress recommendation", "methodology", "objective notes"
+
+---
+
+## MANAGE SETTINGS
+- **Scope:** Settings screen UI (`/settings`), data export/import logic, localStorage read/write for all keys during import/export operations only
+- **Never Touch:** `/lib/recommendation`, `/lib/recovery`, `/lib/zones.js`, `objective-library.json`, `benchmark-library.json`, `assessment-library.json`, `training-config.json`, `training-config-schema.json`, `objective-spec-schema.json`
+- **Triggers:** "settings", "export", "import", "backup", "restore", "clear all data"
 
 ---
 

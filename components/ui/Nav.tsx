@@ -12,6 +12,7 @@ const links = [
   { href: '/objectives', label: 'Objectives' },
   { href: '/preferences', label: 'Preferences' },
   { href: '/zones', label: 'HR Zones' },
+  { href: '/settings', label: 'Settings' },
 ];
 
 export default function Nav() {
