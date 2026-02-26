@@ -1,12 +1,10 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   appendStrengthSession,
   getProgressionHistory,
   setProgressionHistory,
   type StrengthSession,
-  type StrengthExercise,
-  type StrengthSet,
 } from '@/lib/storage';
 import { updateStrengthProgression, getLastStrengthSession } from '@/lib/progression';
 import exerciseLibraryData from '@/data/exercise-library.json';
@@ -14,8 +12,29 @@ import exerciseLibraryData from '@/data/exercise-library.json';
 function today() { return new Date().toISOString().slice(0, 10); }
 function uid() { return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`; }
 
-interface SetEntry { reps: string; weight: string; unit: 'lbs' | 'kg'; }
+interface SetEntry {
+  reps: string;
+  weight: string;
+  unit: 'lbs' | 'kg';
+  isAutoPopulated?: boolean;
+}
 interface ExerciseEntry { exerciseId: string; sets: SetEntry[]; }
+
+function buildSets(
+  defSets: number,
+  defReps: number,
+  lastSets: Array<{ reps: number; weight: number; unit: string }> | null
+): SetEntry[] {
+  return Array.from({ length: defSets }, (_, i) => {
+    const last = lastSets?.[i];
+    return {
+      reps: last ? String(last.reps) : String(defReps),
+      weight: last ? String(last.weight) : '',
+      unit: (last?.unit as 'lbs' | 'kg') ?? 'lbs',
+      isAutoPopulated: !!last,
+    };
+  });
+}
 
 export default function StrengthLogger() {
   const exercises = exerciseLibraryData.exercises;
@@ -33,13 +52,10 @@ export default function StrengthLogger() {
     if (!tpl) return;
     const entries: ExerciseEntry[] = tpl.exerciseIds.map((id) => {
       const def = exercises.find((e) => e.id === id);
+      const lastSets = getLastStrengthSession(progressionHistory, id);
       return {
         exerciseId: id,
-        sets: Array.from({ length: def?.defaults.sets ?? 3 }, () => ({
-          reps: String(def?.defaults.reps ?? 8),
-          weight: '',
-          unit: 'lbs' as const,
-        })),
+        sets: buildSets(def?.defaults.sets ?? 3, def?.defaults.reps ?? 8, lastSets),
       };
     });
     setExerciseEntries(entries);
@@ -48,15 +64,12 @@ export default function StrengthLogger() {
 
   function addExercise(exerciseId: string) {
     const def = exercises.find((e) => e.id === exerciseId);
+    const lastSets = getLastStrengthSession(progressionHistory, exerciseId);
     setExerciseEntries((prev) => [
       ...prev,
       {
         exerciseId,
-        sets: Array.from({ length: def?.defaults.sets ?? 3 }, () => ({
-          reps: String(def?.defaults.reps ?? 8),
-          weight: '',
-          unit: 'lbs' as const,
-        })),
+        sets: buildSets(def?.defaults.sets ?? 3, def?.defaults.reps ?? 8, lastSets),
       },
     ]);
   }
@@ -92,7 +105,7 @@ export default function StrengthLogger() {
           ? {
               ...ex,
               sets: ex.sets.map((s, si) =>
-                si === setIdx ? { ...s, [field]: value } : s
+                si === setIdx ? { ...s, [field]: value, isAutoPopulated: false } : s
               ),
             }
           : ex
@@ -123,7 +136,6 @@ export default function StrengthLogger() {
 
     appendStrengthSession(session);
 
-    // Update progression history
     const updatedHistory = updateStrengthProgression(progressionHistory, session);
     setProgressionHistory(updatedHistory);
     setLocalHistory(updatedHistory);
@@ -187,59 +199,55 @@ export default function StrengthLogger() {
       {/* Exercise list */}
       {exerciseEntries.map((entry, exIdx) => {
         const def = exercises.find((e) => e.id === entry.exerciseId);
-        const lastSession = getLastStrengthSession(progressionHistory, entry.exerciseId);
+        const hasAutoPopulated = entry.sets.some((s) => s.isAutoPopulated);
         return (
           <div key={exIdx} className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-medium text-sm">{def?.name ?? entry.exerciseId}</span>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-sm">{def?.name ?? entry.exerciseId}</span>
+                {hasAutoPopulated && (
+                  <span className="text-xs text-zinc-600 bg-zinc-800 px-1.5 py-0.5 rounded">
+                    last session
+                  </span>
+                )}
+              </div>
               <button onClick={() => removeExercise(exIdx)} className="text-zinc-600 hover:text-zinc-400 text-xs">Remove</button>
             </div>
 
-            {lastSession && (
-              <div className="text-xs text-zinc-600">
-                Last: {lastSession.map((s) => `${s.reps} @ ${s.weight}${s.unit}`).join(' · ')}
-              </div>
-            )}
-
             <div className="space-y-2">
-              {entry.sets.map((set, setIdx) => {
-                const lastSet = lastSession?.[setIdx];
-                return (
-                  <div key={setIdx} className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-600 w-6">{setIdx + 1}</span>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={set.reps}
-                        onChange={(e) => updateSet(exIdx, setIdx, 'reps', e.target.value)}
-                        placeholder={lastSet ? String(lastSet.reps) : 'reps'}
-                        className="w-16 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm"
-                      />
-                      {lastSet && <span className="absolute -bottom-4 left-0 text-xs text-zinc-700">Last: {lastSet.reps}</span>}
-                    </div>
-                    <span className="text-zinc-600 text-xs">×</span>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={set.weight}
-                        onChange={(e) => updateSet(exIdx, setIdx, 'weight', e.target.value)}
-                        placeholder={lastSet ? String(lastSet.weight) : 'lbs'}
-                        className="w-20 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm"
-                      />
-                      {lastSet && <span className="absolute -bottom-4 left-0 text-xs text-zinc-700">Last: {lastSet.weight}</span>}
-                    </div>
-                    <select
-                      value={set.unit}
-                      onChange={(e) => updateSet(exIdx, setIdx, 'unit', e.target.value)}
-                      className="bg-zinc-800 border border-zinc-700 rounded px-1 py-1 text-xs"
-                    >
-                      <option value="lbs">lbs</option>
-                      <option value="kg">kg</option>
-                    </select>
-                    <button onClick={() => removeSet(exIdx, setIdx)} className="text-zinc-700 hover:text-zinc-500 text-xs">✕</button>
-                  </div>
-                );
-              })}
+              {entry.sets.map((set, setIdx) => (
+                <div key={setIdx} className="flex items-center gap-2 mt-5">
+                  <span className="text-xs text-zinc-600 w-6">{setIdx + 1}</span>
+                  <input
+                    type="number"
+                    value={set.reps}
+                    onChange={(e) => updateSet(exIdx, setIdx, 'reps', e.target.value)}
+                    placeholder="reps"
+                    className={`w-16 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm ${
+                      set.isAutoPopulated ? 'text-zinc-400' : ''
+                    }`}
+                  />
+                  <span className="text-zinc-600 text-xs">×</span>
+                  <input
+                    type="number"
+                    value={set.weight}
+                    onChange={(e) => updateSet(exIdx, setIdx, 'weight', e.target.value)}
+                    placeholder="lbs"
+                    className={`w-20 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm ${
+                      set.isAutoPopulated ? 'text-zinc-400' : ''
+                    }`}
+                  />
+                  <select
+                    value={set.unit}
+                    onChange={(e) => updateSet(exIdx, setIdx, 'unit', e.target.value)}
+                    className="bg-zinc-800 border border-zinc-700 rounded px-1 py-1 text-xs"
+                  >
+                    <option value="lbs">lbs</option>
+                    <option value="kg">kg</option>
+                  </select>
+                  <button onClick={() => removeSet(exIdx, setIdx)} className="text-zinc-700 hover:text-zinc-500 text-xs">✕</button>
+                </div>
+              ))}
             </div>
 
             <button
