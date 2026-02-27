@@ -412,7 +412,7 @@ export interface CardioSession {
   zoneDistribution: ZoneDistribution | null;
   trainingLoad: { score: number; classification: 'low' | 'moderate' | 'high' } | null;
   weightsUsed?: boolean;
-  packWeight?: string;
+  packWeight?: number;        // lbs; 0 or absent = no pack
   terrain?: string;
   perceivedEffort?: number;
   notes?: string;

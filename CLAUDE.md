@@ -1,6 +1,7 @@
 # Summit Dashboard — CLAUDE.md
 **v13 — theme system, topo library, EDIT ACTIVITY LOG — 2026-02-26**
 **v14 — elevation NaN fix: getWorkoutLog sanitizes duration/distance/elevationGain on read; fit-parser guards session-level header fields against NaN — 2026-02-27**
+**v15 — CardioSession.packWeight changed from string enum to number (lbs); activity log distances now in miles — 2026-02-27**
 
 Claude Code reads this file at the start of every session. It reflects the current architectural state of the app. Update this file (incrementing v[N]) after any change to file ownership, localStorage structure, data shapes, command types, or system architecture.
 
@@ -211,7 +212,7 @@ Known corosType values: `IndoorRun`, `OutdoorRun`, `IndoorCycle`, `OutdoorCycle`
 
 Condition strings evaluated in `lib/stimulus-engine/index.ts`:
 - `elevationGainPerHour < 500` / `>= 500`
-- `packWeight === 'none'` / `packWeight !== 'none'`
+- `packWeight === 'none'` / `packWeight !== 'none'` — condition strings in JSON are unchanged; evaluated as `!packWeight || packWeight === 0` / `packWeight > 0` (CardioSession.packWeight is now `number` lbs, not a string enum)
 - `weightsUsed === false` / `weightsUsed === true`   ← CHANGED from inclineUsed in Prompt 1
 
 ---

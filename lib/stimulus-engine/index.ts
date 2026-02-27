@@ -78,8 +78,8 @@ function getCardioStimulus(session: CardioSession): StimulusMap {
     // Evaluate condition string
     if (m.condition.includes('elevationGainPerHour < 500')) return elevPerHour < 500;
     if (m.condition.includes('elevationGainPerHour >= 500')) return elevPerHour >= 500;
-    if (m.condition.includes("packWeight === 'none'")) return packWeight === 'none';
-    if (m.condition.includes("packWeight !== 'none'")) return packWeight !== 'none' && packWeight !== undefined;
+    if (m.condition.includes("packWeight === 'none'")) return !packWeight || packWeight === 0;
+    if (m.condition.includes("packWeight !== 'none'")) return !!packWeight && packWeight > 0;
     if (m.condition.includes('weightsUsed === false')) return weightsUsed === false;
     if (m.condition.includes('weightsUsed === true')) return weightsUsed === true;
     return true;
@@ -400,8 +400,8 @@ export function getCardioSessionStimulusSummary(session: CardioSession): CardioS
     factors.push(`Elevation gain: ${Math.round(session.elevationGain)}ft — increases posterior chain and loaded carry stimulus`);
   }
 
-  if (session.packWeight && session.packWeight !== 'none') {
-    factors.push(`Pack weight: ${session.packWeight} — increases loaded carry and posterior chain stimulus`);
+  if (session.packWeight && session.packWeight > 0) {
+    factors.push(`Pack weight: ${session.packWeight}lb — increases loaded carry and posterior chain stimulus`);
   }
 
   if (session.weightsUsed) {

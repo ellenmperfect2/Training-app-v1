@@ -65,7 +65,7 @@ function getFocus(e: Entry): string {
   if (e.type === 'cardio') {
     const s = e.session;
     const actType = s.activityType ?? '';
-    const loaded = s.packWeight && s.packWeight !== 'none';
+    const loaded = s.packWeight && s.packWeight > 0;
     if (loaded && actType.toLowerCase().includes('hike')) return 'Loaded hike';
     return camelToWords(actType) || 'Cardio';
   }
@@ -246,14 +246,12 @@ function CardioDetail({ session, onUpdate }: { session: CardioSession; onUpdate:
               className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-2 py-1 text-sm text-glacier-primary input-glow" />
           </div>
           <div>
-            <FieldLabel>Pack weight</FieldLabel>
-            <select value={session.packWeight ?? 'none'} onChange={(e) => onUpdate({ packWeight: e.target.value })}
-              className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-2 py-1 text-sm text-glacier-primary input-glow">
-              <option value="none">None</option>
-              <option value="light">Light</option>
-              <option value="moderate">Moderate</option>
-              <option value="heavy">Heavy</option>
-            </select>
+            <FieldLabel>Pack weight (lbs)</FieldLabel>
+            <input key={session.packWeight} type="number" min={0}
+              defaultValue={session.packWeight ?? ''}
+              onBlur={(e) => { const v = parseFloat(e.target.value); onUpdate({ packWeight: !isNaN(v) && v > 0 ? v : undefined }); }}
+              placeholder="0"
+              className="w-full bg-glacier-card-alt border border-glacier-edge rounded px-2 py-1 text-sm text-glacier-primary input-glow placeholder:text-glacier-muted" />
           </div>
           <div>
             <FieldLabel>Terrain</FieldLabel>
@@ -273,7 +271,7 @@ function CardioDetail({ session, onUpdate }: { session: CardioSession; onUpdate:
           {session.distance > 0 && (
             <div>
               <FieldLabel>Distance</FieldLabel>
-              <div className="text-sm text-glacier-primary py-1">{(session.distance / 1000).toFixed(1)} km</div>
+              <div className="text-sm text-glacier-primary py-1">{(session.distance / 1609.34).toFixed(2)} mi</div>
             </div>
           )}
           {session.avgHR && (

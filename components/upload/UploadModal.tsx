@@ -66,7 +66,7 @@ export default function UploadModal() {
     const session: CardioSession = {
       ...pending.session,
       weightsUsed: annotation.weightsUsed === 'true' ? true : annotation.weightsUsed === 'false' ? false : undefined,
-      packWeight: annotation.packWeight || undefined,
+      packWeight: annotation.packWeight ? (parseFloat(annotation.packWeight) || undefined) : undefined,
       terrain: annotation.terrain || undefined,
       perceivedEffort: annotation.perceivedEffort ? parseInt(annotation.perceivedEffort) : undefined,
       notes: annotation.notes || undefined,
@@ -135,25 +135,13 @@ export default function UploadModal() {
 
           {pending.annotationFields.includes('packWeight') && (
             <div>
-              <label className="block text-xs text-glacier-secondary mb-2">Pack weight <span className="text-glacier-danger">*</span></label>
-              <div className="flex gap-2 flex-wrap">
-                {[
-                  { value: 'none', label: 'None' },
-                  { value: 'light', label: 'Light (15–25 lbs)' },
-                  { value: 'moderate', label: 'Moderate (25–40 lbs)' },
-                  { value: 'heavy', label: 'Heavy (40+ lbs)' },
-                ].map((opt) => (
-                  <button key={opt.value} onClick={() => setAnnotation((a) => ({ ...a, packWeight: opt.value }))}
-                    className={`px-3 py-1.5 rounded text-sm border transition-colors ${
-                      annotation.packWeight === opt.value
-                        ? 'bg-glacier-accent border-glacier-accent text-glacier-bg'
-                        : 'bg-glacier-card border-glacier-edge text-glacier-secondary hover:border-glacier-edge-hover'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
+              <label className="block text-xs text-glacier-secondary mb-2">Pack weight (lbs) — leave blank if none</label>
+              <input
+                type="number" min={0} placeholder="0"
+                value={annotation.packWeight ?? ''}
+                onChange={(e) => setAnnotation((a) => ({ ...a, packWeight: e.target.value }))}
+                className="w-32 bg-glacier-card-alt border border-glacier-edge rounded px-3 py-1.5 text-sm text-glacier-primary input-glow placeholder:text-glacier-muted"
+              />
             </div>
           )}
 

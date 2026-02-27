@@ -109,7 +109,7 @@ export function detectBenchmarkMatches(
           session.duration >= 5400 &&
           session.elevationGain > 984 &&
           session.packWeight &&
-          session.packWeight !== 'none'
+          session.packWeight > 0
         ) {
           suggestions.push({
             assessmentId: assessment.id,
