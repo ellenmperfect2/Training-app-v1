@@ -148,11 +148,12 @@ export async function parseFitFile(
           return;
         }
 
-        const durationSec = Math.round(
-          Number(sessionData.total_timer_time ?? sessionData.total_elapsed_time ?? 0)
-        );
-        const distanceM = Math.round(Number(sessionData.total_distance ?? 0));
-        let elevGainFt = Math.round(Number(sessionData.total_ascent ?? 0) * 3.281);
+        const _timerRaw = Number(sessionData.total_timer_time ?? sessionData.total_elapsed_time ?? 0);
+        const durationSec = Math.round(Number.isFinite(_timerRaw) ? _timerRaw : 0);
+        const _distRaw = Number(sessionData.total_distance ?? 0);
+        const distanceM = Math.round(Number.isFinite(_distRaw) ? _distRaw : 0);
+        const _ascentRaw = Number(sessionData.total_ascent ?? 0);
+        let elevGainFt = Number.isFinite(_ascentRaw) ? Math.round(_ascentRaw * 3.281) : 0;
         const avgHR = sessionData.avg_heart_rate != null ? Number(sessionData.avg_heart_rate) : null;
         const maxHR = sessionData.max_heart_rate != null ? Number(sessionData.max_heart_rate) : null;
         const sport = String(sessionData.sport ?? 'generic');
@@ -167,18 +168,33 @@ export async function parseFitFile(
           timestamp?: string;
           heart_rate?: number;
           altitude?: number;
+          enhanced_altitude?: number;
         }>;
 
         // Derive elevation from record stream if session value is 0
         let derivedElevation = false;
         if (elevGainFt === 0 && records.length > 1) {
           let gain = 0;
+          let hasValid = false;
           for (let i = 1; i < records.length; i++) {
-            const prev = records[i - 1].altitude;
-            const curr = records[i].altitude;
-            if (prev != null && curr != null && curr > prev) gain += curr - prev;
+            const prevRec = records[i - 1];
+            const currRec = records[i];
+            const prev = Number.isFinite(prevRec.enhanced_altitude)
+              ? prevRec.enhanced_altitude!
+              : Number.isFinite(prevRec.altitude)
+              ? prevRec.altitude!
+              : null;
+            const curr = Number.isFinite(currRec.enhanced_altitude)
+              ? currRec.enhanced_altitude!
+              : Number.isFinite(currRec.altitude)
+              ? currRec.altitude!
+              : null;
+            if (prev !== null || curr !== null) hasValid = true;
+            if (prev !== null && curr !== null && curr > prev) gain += curr - prev;
           }
-          if (gain > 0) {
+          if (!hasValid) {
+            elevGainFt = 0;
+          } else if (gain > 0) {
             elevGainFt = Math.round(gain * 3.281);
             derivedElevation = true;
           }

@@ -91,12 +91,20 @@ export function setConflicts(conflicts: ConflictList): void {
 // ── Workout Log ────────────────────────────────────────────────────────────
 
 export function getWorkoutLog(): WorkoutLog {
-  return read<WorkoutLog>(STORAGE_KEYS.WORKOUT_LOG, {
+  const log = read<WorkoutLog>(STORAGE_KEYS.WORKOUT_LOG, {
     cardio: [],
     strength: [],
     climbing: [],
     conditioning: [],
   });
+  // Clamp non-finite numeric fields — guards against NaN stored by older parser versions
+  log.cardio = log.cardio.map((s) => ({
+    ...s,
+    duration: Number.isFinite(s.duration) ? s.duration : 0,
+    distance: Number.isFinite(s.distance) ? s.distance : 0,
+    elevationGain: Number.isFinite(s.elevationGain) ? s.elevationGain : 0,
+  }));
+  return log;
 }
 
 export function setWorkoutLog(log: WorkoutLog): void {

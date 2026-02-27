@@ -1,5 +1,6 @@
 # Summit Dashboard — CLAUDE.md
 **v13 — theme system, topo library, EDIT ACTIVITY LOG — 2026-02-26**
+**v14 — elevation NaN fix: getWorkoutLog sanitizes duration/distance/elevationGain on read; fit-parser guards session-level header fields against NaN — 2026-02-27**
 
 Claude Code reads this file at the start of every session. It reflects the current architectural state of the app. Update this file (incrementing v[N]) after any change to file ownership, localStorage structure, data shapes, command types, or system architecture.
 
@@ -223,6 +224,10 @@ Condition strings evaluated in `lib/stimulus-engine/index.ts`:
 - The recovery engine (`/lib/recovery`) must never be modified except by UPDATE RECOVERY RULES
 - JSON data files in `/data` are the single source of truth for objective/benchmark/assessment definitions
 - localStorage is the single source of truth for all user data
+<<<<<<< HEAD
 - **Theme system:** All color values in components must come from `useTheme()` → `T.{token}` (inline styles) or from CSS custom properties updated by ThemeProvider. No hardcoded hex values in component or page files.
 - **Topo lines:** `topo-library.json` stores contour data (ADD TOPO command only). `topo-page-config.json` controls page assignments (ASSIGN TOPO command only). These two files are never modified by the same command. `topo-page-config.json` is read-only at runtime — never written by the app.
 - **Font rule:** DM Serif Display (`TYPE.serif` / `TYPE.displayXl/Lg/Md/Num`) is used only for: workout title (RecommendationCard), objective name (ObjectiveCard), and key numeric callouts (weeks-out in ObjectiveCard). All other text must use DM Sans.
+=======
+- `getWorkoutLog` sanitizes non-finite (NaN) numeric fields on read — `duration`, `distance`, `elevationGain` in cardio sessions are clamped to 0; stored data is not mutated
+>>>>>>> c789916 (Fix elevation NaN from COROS FIT files (PROCESS DAILY DATA))

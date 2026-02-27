@@ -153,7 +153,7 @@ export default function CardioSummary() {
         ) : (
           <>
             <div className="text-xs text-glacier-secondary space-y-0.5">
-              <div>{todaySessions.length} session{todaySessions.length > 1 ? 's' : ''} · {formatDuration(todayDuration)} · {Math.round(todayElev)}ft gain</div>
+              <div>{todaySessions.length} session{todaySessions.length > 1 ? 's' : ''} · {formatDuration(todayDuration)} · {Number.isFinite(todayElev) ? `${Math.round(todayElev)}ft gain` : '--'}</div>
             </div>
             <div className="space-y-1.5">
               <div className="text-xs text-glacier-muted mb-1">Zone distribution</div>
@@ -171,7 +171,7 @@ export default function CardioSummary() {
         ) : (
           <>
             <div className="text-xs text-glacier-secondary">
-              {weekSessions.length} session{weekSessions.length > 1 ? 's' : ''} · {formatDuration(weekDuration)} · {Math.round(weekElev)}ft gain
+              {weekSessions.length} session{weekSessions.length > 1 ? 's' : ''} · {formatDuration(weekDuration)} · {Number.isFinite(weekElev) ? `${Math.round(weekElev)}ft gain` : '--'}
             </div>
             <div className="space-y-1.5">
               <div className="text-xs text-glacier-muted mb-1">Zone distribution</div>
